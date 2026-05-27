@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+/* Tema Smartclic — fondo blanco, texto oscuro, acento cyan */
+@theme inline {
+  --color-background: oklch(1 0 0);
+  --color-foreground: oklch(0.18 0.02 260);
+  --color-card: oklch(0.99 0.005 260);
+  --color-card-foreground: oklch(0.18 0.02 260);
+  --color-primary: oklch(0.55 0.18 195);
+  --color-primary-foreground: oklch(1 0 0);
+  --color-secondary: oklch(0.96 0.01 260);
+  --color-secondary-foreground: oklch(0.22 0.02 260);
+  --color-muted: oklch(0.96 0.01 260);
+  --color-muted-foreground: oklch(0.48 0.02 260);
+  --color-accent: oklch(0.55 0.2 320);
+  --color-accent-foreground: oklch(1 0 0);
+  --color-border: oklch(0.9 0.01 260);
+  --color-ring: oklch(0.55 0.18 195);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Syne", system-ui, sans-serif;
+  --font-hero: "Sonsie One", system-ui, sans-serif;
+}
+
+/* Fuente del título del hero */
+.sonsie-one-regular {
+  font-family: var(--font-hero);
+  font-weight: 400;
+  font-style: normal;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-foreground antialiased;
+    font-family: var(--font-sans);
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  #root {
+    min-height: 100svh;
+    @apply bg-white;
+  }
+}
+
+/* Gradiente suave del hero sobre fondo blanco */
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.hero-gradient {
+  background: linear-gradient(
+    135deg,
+    oklch(1 0 0) 0%,
+    oklch(0.98 0.02 195) 40%,
+    oklch(0.99 0.015 280) 70%,
+    oklch(1 0 0) 100%
+  );
+  background-size: 200% 200%;
+  animation: gradient-shift 12s ease infinite;
+}
+
+@keyframes shine {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.text-shine {
+  background: linear-gradient(
+    90deg,
+    oklch(0.18 0.02 260) 0%,
+    oklch(0.55 0.18 195) 40%,
+    oklch(0.18 0.02 260) 60%,
+    oklch(0.5 0.2 320) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 4s linear infinite;
+}
+
+/* Grid sutil sobre blanco */
+.bg-grid {
+  background-image: linear-gradient(
+      oklch(0.55 0.18 195 / 0.08) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, oklch(0.55 0.18 195 / 0.08) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black, transparent);
+}
+
+/* Lluvia de emojis — sección Soluciones */
+@keyframes emoji-rain-fall {
+  0% {
+    transform: translate3d(0, -12%, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(var(--rain-drift, 0px), 115%, 0) rotate(360deg);
+  }
+}
+
+.emoji-rain-particle {
+  animation: emoji-rain-fall var(--rain-duration, 12s) linear infinite;
+  animation-delay: var(--rain-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emoji-rain-particle {
+    animation: none;
+    opacity: 0.08 !important;
+  }
+}
+
+.model-viewer-scroll-safe {
+  touch-action: pan-y;
+  overscroll-behavior-y: contain;
+}
+
+.model-viewer-scroll-safe canvas {
+  touch-action: pan-y;
+}
