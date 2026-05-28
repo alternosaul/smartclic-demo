@@ -6,149 +6,162 @@ import { TextRotate } from '@/components/ui/text-rotate'
 import { useLanguage } from '@/i18n/LanguageProvider'
 import { BrandBanners } from '@/components/sections/BrandBanners'
 
-/** Tarjetas flotantes — posiciones más cercanas entre sí en cada lateral */
+/** PNG con fondo transparente en /public/hero-cards */
+const heroCardImages = {
+  macbook: '/hero-cards/macbook.png',
+  boardingPass: '/hero-cards/boarding-pass.png',
+  burger: '/hero-cards/burger.png',
+  chessRook: '/hero-cards/chess-rook.png',
+  iceCream: '/hero-cards/ice-cream.png',
+  smartphone: '/hero-cards/smartphone.png',
+  tablet: '/hero-cards/tablet.png',
+  boseSpeaker: '/hero-cards/bose-speaker.png',
+  airpods: '/hero-cards/airpods.png',
+  foundation: '/hero-cards/foundation.png',
+  sneaker: '/hero-cards/sneaker.png',
+  drone: '/hero-cards/drone.png',
+  camera: '/hero-cards/camera.png',
+} as const
+
+/** Stickers flotantes — sin contenedor; sombra según profundidad parallax */
 const floatingCards = [
-  // Cluster izquierdo
+  // Izquierda
   {
-    url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80',
-    title: 'Analytics',
-    depth: 0.5,
-    position: 'top-[10%] left-[3%] md:top-[14%] md:left-[6%]',
-    size: 'h-9 w-12 sm:h-11 sm:w-16 md:h-14 md:w-20',
-    rotate: '-rotate-6',
+    src: heroCardImages.macbook,
+    title: 'MacBook Pro',
+    depth: 1.5,
+    position: 'top-[8%] left-[2%] md:top-[10%] md:left-[4%]',
+    size: 'h-20 w-28 sm:h-24 sm:w-32 md:h-28 md:w-40',
+    rotate: '-rotate-8',
+    shadow: 'drop-shadow-[0_18px_28px_rgba(0,0,0,0.22)]',
     delay: 0.4,
   },
   {
-    url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&q=80',
-    title: 'Desarrollo web',
+    src: heroCardImages.smartphone,
+    title: 'Smartphone',
     depth: 1,
-    position: 'top-[18%] left-[10%] md:top-[20%] md:left-[12%]',
-    size: 'h-14 w-20 sm:h-16 sm:w-24 md:h-20 md:w-32',
-    rotate: '-rotate-12',
-    delay: 0.5,
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1517694712202-8dd79b786b4d?w=600&q=80',
-    title: 'Laptop código',
-    depth: 1.5,
-    position: 'top-[28%] left-[4%] md:top-[30%] md:left-[8%]',
-    size: 'h-11 w-16 sm:h-14 sm:w-20 md:h-16 md:w-24',
-    rotate: 'rotate-3',
-    delay: 0.55,
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=80',
-    title: 'Código',
-    depth: 2,
-    position: 'top-[38%] left-[12%] md:top-[40%] md:left-[14%]',
-    size: 'h-16 w-16 sm:h-20 sm:w-20 md:h-24 md:w-24',
-    rotate: '-rotate-[4deg]',
-    delay: 0.6,
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1547658719-da2b51169166?w=600&q=80',
-    title: 'UI Design',
-    depth: 0.8,
-    position: 'top-[50%] left-[5%] md:top-[52%] md:left-[9%]',
-    size: 'h-10 w-14 sm:h-12 sm:w-16 md:h-14 md:w-20',
-    rotate: 'rotate-8',
-    delay: 0.65,
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=600&q=80',
-    title: 'Equipo',
-    depth: 1.2,
-    position: 'top-[62%] left-[11%] md:top-[64%] md:left-[13%]',
-    size: 'h-14 w-20 sm:h-16 sm:w-24 md:h-20 md:w-28',
-    rotate: '-rotate-10',
-    delay: 0.7,
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&q=80',
-    title: 'Workspace',
-    depth: 3,
-    position: 'top-[72%] left-[6%] md:top-[74%] md:left-[10%]',
-    size: 'h-16 w-20 sm:h-20 sm:w-24 md:h-24 md:w-28',
-    rotate: 'rotate-6',
-    delay: 0.75,
-  },
-  // Cluster derecho
-  {
-    url: 'https://images.unsplash.com/photo-1551650974-3fb9569e6850?w=600&q=80',
-    title: 'Móvil',
-    depth: 2,
-    position: 'top-[8%] left-[78%] md:top-[12%] md:left-[80%]',
-    size: 'h-14 w-16 sm:h-16 sm:w-20 md:h-20 md:w-28',
-    rotate: 'rotate-6',
+    position: 'top-[20%] left-[10%] md:top-[22%] md:left-[11%]',
+    size: 'h-16 w-10 sm:h-20 sm:w-12 md:h-24 md:w-14',
+    rotate: 'rotate-12',
+    shadow: 'drop-shadow-[0_14px_22px_rgba(0,0,0,0.18)]',
     delay: 0.45,
   },
   {
-    url: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80',
-    title: 'Colaboración',
-    depth: 1,
-    position: 'top-[17%] left-[85%] md:top-[19%] md:left-[86%]',
-    size: 'h-12 w-16 sm:h-14 sm:w-20 md:h-16 md:w-24',
-    rotate: '-rotate-8',
+    src: heroCardImages.boardingPass,
+    title: 'Boarding pass',
+    depth: 0.8,
+    position: 'top-[32%] left-[4%] md:top-[34%] md:left-[6%]',
+    size: 'h-12 w-28 sm:h-14 sm:w-32 md:h-16 md:w-40',
+    rotate: 'rotate-5',
+    shadow: 'drop-shadow-[0_10px_18px_rgba(0,0,0,0.14)]',
     delay: 0.5,
   },
   {
-    url: 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=600&q=80',
-    title: 'Diseño web',
-    depth: 1.5,
-    position: 'top-[27%] left-[80%] md:top-[29%] md:left-[82%]',
-    size: 'h-16 w-20 sm:h-20 sm:w-24 md:h-20 md:w-32',
-    rotate: 'rotate-12',
+    src: heroCardImages.tablet,
+    title: 'Tablet',
+    depth: 1.3,
+    position: 'top-[44%] left-[9%] md:top-[46%] md:left-[10%]',
+    size: 'h-14 w-20 sm:h-16 sm:w-24 md:h-20 md:w-28',
+    rotate: '-rotate-6',
+    shadow: 'drop-shadow-[0_16px_24px_rgba(0,0,0,0.2)]',
     delay: 0.55,
   },
   {
-    url: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&q=80',
-    title: 'Dev',
-    depth: 0.6,
-    position: 'top-[37%] left-[87%] md:top-[39%] md:left-[88%]',
-    size: 'h-10 w-14 sm:h-12 sm:w-16 md:h-14 md:w-20',
-    rotate: '-rotate-5',
+    src: heroCardImages.burger,
+    title: 'Hamburguesa gourmet',
+    depth: 2,
+    position: 'top-[56%] left-[3%] md:top-[58%] md:left-[5%]',
+    size: 'h-16 w-20 sm:h-20 sm:w-24 md:h-24 md:w-28',
+    rotate: '-rotate-[4deg]',
+    shadow: 'drop-shadow-[0_20px_30px_rgba(0,0,0,0.24)]',
     delay: 0.6,
   },
   {
-    url: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&q=80',
-    title: 'Marketing',
+    src: heroCardImages.chessRook,
+    title: 'Pieza de ajedrez',
+    depth: 1.2,
+    position: 'top-[66%] left-[11%] md:top-[68%] md:left-[12%]',
+    size: 'h-16 w-14 sm:h-20 sm:w-16 md:h-24 md:w-20',
+    rotate: 'rotate-10',
+    shadow: 'drop-shadow-[0_12px_20px_rgba(0,0,0,0.16)]',
+    delay: 0.68,
+  },
+  {
+    src: heroCardImages.iceCream,
+    title: 'Helado',
     depth: 2.5,
-    position: 'top-[48%] left-[82%] md:top-[50%] md:left-[84%]',
-    size: 'h-14 w-20 sm:h-16 sm:w-24 md:h-20 md:w-28',
-    rotate: 'rotate-[14deg]',
-    delay: 0.65,
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&q=80',
-    title: 'Métricas',
-    depth: 1.8,
-    position: 'top-[58%] left-[86%] md:top-[60%] md:left-[87%]',
-    size: 'h-14 w-16 sm:h-16 sm:w-20 md:h-16 md:w-24',
-    rotate: '-rotate-12',
-    delay: 0.7,
-  },
-  {
-    url: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=600&q=80',
-    title: 'Proyecto',
-    depth: 1,
-    position: 'top-[68%] left-[79%] md:top-[70%] md:left-[81%]',
-    size: 'h-16 w-20 sm:h-20 sm:w-24 md:h-24 md:w-32',
-    rotate: 'rotate-[19deg]',
+    position: 'top-[76%] left-[5%] md:top-[78%] md:left-[7%]',
+    size: 'h-20 w-14 sm:h-24 sm:w-16 md:h-28 md:w-20',
+    rotate: '-rotate-7',
+    shadow: 'drop-shadow-[0_22px_32px_rgba(0,0,0,0.26)]',
     delay: 0.75,
   },
+  // Derecha
   {
-    url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&q=80',
-    title: 'Producto digital',
-    depth: 3,
-    position: 'top-[76%] left-[84%] md:top-[78%] md:left-[85%]',
-    size: 'h-12 w-16 sm:h-14 sm:w-20 md:h-16 md:w-24',
-    rotate: '-rotate-6',
-    delay: 0.8,
+    src: heroCardImages.boseSpeaker,
+    title: 'Bocina Bose',
+    depth: 1.8,
+    position: 'top-[7%] left-[78%] md:top-[9%] md:left-[80%]',
+    size: 'h-20 w-16 sm:h-24 sm:w-20 md:h-28 md:w-24',
+    rotate: 'rotate-9',
+    shadow: 'drop-shadow-[0_18px_28px_rgba(0,0,0,0.22)]',
+    delay: 0.42,
+  },
+  {
+    src: heroCardImages.airpods,
+    title: 'AirPods',
+    depth: 1,
+    position: 'top-[19%] left-[85%] md:top-[21%] md:left-[86%]',
+    size: 'h-16 w-14 sm:h-20 sm:w-20 md:h-24 md:w-24',
+    rotate: '-rotate-11',
+    shadow: 'drop-shadow-[0_14px_22px_rgba(0,0,0,0.18)]',
+    delay: 0.48,
+  },
+  {
+    src: heroCardImages.camera,
+    title: 'Cámara',
+    depth: 1.4,
+    position: 'top-[31%] left-[80%] md:top-[33%] md:left-[82%]',
+    size: 'h-14 w-20 sm:h-16 sm:w-24 md:h-20 md:w-28',
+    rotate: 'rotate-[7deg]',
+    shadow: 'drop-shadow-[0_16px_24px_rgba(0,0,0,0.2)]',
+    delay: 0.54,
+  },
+  {
+    src: heroCardImages.foundation,
+    title: 'Base de maquillaje',
+    depth: 0.9,
+    position: 'top-[43%] left-[86%] md:top-[45%] md:left-[87%]',
+    size: 'h-20 w-10 sm:h-24 sm:w-12 md:h-28 md:w-14',
+    rotate: 'rotate-[5deg]',
+    shadow: 'drop-shadow-[0_12px_20px_rgba(0,0,0,0.15)]',
+    delay: 0.6,
+  },
+  {
+    src: heroCardImages.drone,
+    title: 'Drone',
+    depth: 1.6,
+    position: 'top-[55%] left-[79%] md:top-[57%] md:left-[81%]',
+    size: 'h-16 w-24 sm:h-20 sm:w-28 md:h-24 md:w-32',
+    rotate: 'rotate-11',
+    shadow: 'drop-shadow-[0_18px_28px_rgba(0,0,0,0.22)]',
+    delay: 0.66,
+  },
+  {
+    src: heroCardImages.sneaker,
+    title: 'Tenis',
+    depth: 2.2,
+    position: 'top-[67%] left-[84%] md:top-[69%] md:left-[85%]',
+    size: 'h-16 w-24 sm:h-20 sm:w-28 md:h-24 md:w-32',
+    rotate: '-rotate-[3deg]',
+    shadow: 'drop-shadow-[0_20px_30px_rgba(0,0,0,0.24)]',
+    delay: 0.72,
   },
 ]
 
-const cardImgClass =
-  'cursor-pointer rounded-lg object-cover shadow-xl transition-transform duration-200 hover:scale-105'
+/** Estilo sticker: solo imagen + sombra suave (respeta alpha del PNG) */
+const stickerClass =
+  'pointer-events-auto max-h-full max-w-full cursor-pointer select-none object-contain transition-transform duration-300 ease-out hover:scale-110'
 
 /**
  * Hero principal — TextRotate + imágenes parallax flotantes agrupadas
@@ -163,7 +176,7 @@ export function Hero() {
       <div className="pointer-events-none absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-primary/10 blur-[120px]" />
       <div className="pointer-events-none absolute -right-32 bottom-1/4 h-96 w-96 rounded-full bg-accent/10 blur-[120px]" />
 
-      {/* Tarjetas solo en pantallas medianas+ para no tapar el título en móvil */}
+      {/* Stickers PNG (fondo transparente) — md+ para no tapar el título en móvil */}
       <Floating sensitivity={-0.5} className="z-0 hidden h-full md:block">
         {floatingCards.map((card, i) => (
           <FloatingElement
@@ -172,12 +185,13 @@ export function Hero() {
             className={`absolute ${card.position}`}
           >
             <motion.img
-              src={card.url}
+              src={card.src}
               alt={card.title}
-              className={`${card.size} ${card.rotate} ${cardImgClass}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: card.delay }}
+              draggable={false}
+              className={`${card.size} ${card.rotate} ${stickerClass} ${card.shadow}`}
+              initial={{ opacity: 0, scale: 0.92 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: card.delay, duration: 0.35 }}
             />
           </FloatingElement>
         ))}
