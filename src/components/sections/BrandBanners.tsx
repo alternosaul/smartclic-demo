@@ -359,7 +359,7 @@ export function BrandBanners({ variant = 'section' }: BrandBannersProps) {
       className={cn(
         'w-full',
         isHero &&
-          'pointer-events-none relative z-30 mx-auto mb-1 w-[140vw] max-w-none shrink-0 pb-4 -rotate-[3deg] origin-center sm:mb-2 sm:pb-6',
+          'pointer-events-none relative mx-auto w-full max-w-none shrink-0 overflow-hidden pb-3 max-md:mb-0 max-md:rotate-0 max-md:pb-3 sm:mb-2 sm:w-[140vw] sm:-rotate-[3deg] sm:pb-6 sm:origin-center',
       )}
     >
       <div className="flex flex-col">

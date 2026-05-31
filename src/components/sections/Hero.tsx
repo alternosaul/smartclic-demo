@@ -6,6 +6,8 @@ import Floating, { FloatingElement } from '@/components/ui/parallax-floating'
 import { TextRotate } from '@/components/ui/text-rotate'
 import { useLanguage } from '@/i18n/LanguageProvider'
 import { BrandBanners } from '@/components/sections/BrandBanners'
+import { useMediaQuery } from '@/hooks/use-media-query'
+import { cn } from '@/lib/utils'
 
 /** PNG con fondo transparente en /public/hero-cards */
 const heroCardImages = {
@@ -260,14 +262,6 @@ const floatingCardsMobileBottom: HeroSticker[] = [
   },
 ]
 
-/** Parallax al scroll móvil — desplazamiento suave sin sacar los stickers de vista */
-const mobileScrollOffsets = [
-  { y: -22, x: 10 },
-  { y: -16, x: -8 },
-  { y: -24, x: 8 },
-  { y: -18, x: -10 },
-]
-
 /** Retraso del flotado idle por sticker */
 const mobileFloatDelays = [0, 0.6, 1.2, 1.8]
 
@@ -275,28 +269,18 @@ const mobileFloatDelays = [0, 0.6, 1.2, 1.8]
 const stickerClass =
   'pointer-events-none max-h-full max-w-full select-none object-contain'
 
-/** Sticker móvil — parallax lineal al scroll + flotado suave (sin whileInView) */
-function MobileScrollSticker({
+/** Sticker móvil con animación idle (sin position absolute) */
+function MobileIdleSticker({
   card,
-  scrollYProgress,
-  yEnd,
-  xEnd,
   floatDelay = 0,
 }: {
   card: HeroSticker
-  scrollYProgress: MotionValue<number>
-  yEnd: number
-  xEnd: number
   floatDelay?: number
 }) {
   const reducedMotion = useReducedMotion()
-  // Movimiento continuo ligado al scroll — sin volver a cero en el punto medio
-  const y = useTransform(scrollYProgress, [0, 1], [0, yEnd])
-  const x = useTransform(scrollYProgress, [0, 1], [0, xEnd])
 
   return (
-    <motion.div style={{ y, x }} className="flex justify-center">
-      {/* Entrada única al montar — evita parpadeos al salir del viewport */}
+    <div className="flex justify-center">
       <motion.div
         initial={{ opacity: 0, scale: 0.92 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -306,7 +290,7 @@ function MobileScrollSticker({
           animate={
             reducedMotion
               ? undefined
-              : { y: [0, -10, 0], rotate: [0, 2, 0, -2, 0] }
+              : { y: [0, -8, 0], rotate: [0, 2, 0, -2, 0] }
           }
           transition={{
             duration: 5 + floatDelay,
@@ -323,62 +307,35 @@ function MobileScrollSticker({
           />
         </motion.div>
       </motion.div>
-    </motion.div>
+    </div>
   )
 }
 
-/** Stickers móvil — se alejan del centro y se mueven con el scroll del hero */
-function HeroMobileStickers({
-  scrollYProgress,
+/** Fila de stickers en el flujo del documento (móvil) */
+function HeroMobileStickerRow({
+  cards,
+  floatDelayOffset = 0,
+  align = 'end',
 }: {
-  scrollYProgress: MotionValue<number>
+  cards: HeroSticker[]
+  floatDelayOffset?: number
+  align?: 'end' | 'start'
 }) {
-  // Filas con ligero movimiento al scroll — sin desaparecer del hero
-  const topRowY = useTransform(scrollYProgress, [0, 1], [0, -36])
-  const bottomRowY = useTransform(scrollYProgress, [0, 1], [0, 36])
-
-  /** Fila expandida 20% hacia los lados respecto al contenedor del texto */
-  const rowSpreadClass =
-    'absolute left-1/2 w-[140%] -translate-x-1/2 grid grid-cols-4 gap-0'
-
   return (
     <div
-      className="pointer-events-none absolute inset-0 z-0 overflow-visible md:hidden"
+      className={cn(
+        'pointer-events-none grid grid-cols-4 gap-0 px-0 md:hidden',
+        align === 'end' ? 'items-end' : 'items-start',
+      )}
       aria-hidden
     >
-      {/* Fila superior — sube y se abre hacia los bordes al scroll */}
-      <motion.div
-        style={{ y: topRowY }}
-        className={`${rowSpreadClass} -top-[20%] items-end`}
-      >
-        {floatingCardsMobileTop.map((card, i) => (
-          <MobileScrollSticker
-            key={card.title}
-            card={card}
-            scrollYProgress={scrollYProgress}
-            yEnd={mobileScrollOffsets[i].y}
-            xEnd={mobileScrollOffsets[i].x}
-            floatDelay={mobileFloatDelays[i]}
-          />
-        ))}
-      </motion.div>
-
-      {/* Fila inferior — baja y se abre hacia los bordes al scroll */}
-      <motion.div
-        style={{ y: bottomRowY }}
-        className={`${rowSpreadClass} -bottom-[20%] items-start`}
-      >
-        {floatingCardsMobileBottom.map((card, i) => (
-          <MobileScrollSticker
-            key={card.title}
-            card={card}
-            scrollYProgress={scrollYProgress}
-            yEnd={mobileScrollOffsets[i].y * -1.15}
-            xEnd={mobileScrollOffsets[i].x * -1.15}
-            floatDelay={mobileFloatDelays[i] + 0.3}
-          />
-        ))}
-      </motion.div>
+      {cards.map((card, i) => (
+        <MobileIdleSticker
+          key={card.title}
+          card={card}
+          floatDelay={mobileFloatDelays[i] + floatDelayOffset}
+        />
+      ))}
     </div>
   )
 }
@@ -430,26 +387,36 @@ function HeroStickerLayer({
 export function Hero() {
   const { t } = useLanguage()
   const sectionRef = useRef<HTMLElement>(null)
+  // En móvil desactivamos parallax ligado al scroll (bloquea el gesto en iOS/Android)
+  const isMobile = useMediaQuery('(max-width: 767px)')
+  const scrollMotionEnabled = !isMobile
 
-  // Progreso de scroll dentro del hero — alimenta parallax en móvil y fondos
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end start'],
   })
-  const heroBgY = useTransform(scrollYProgress, [0, 1], [0, 120])
-  const heroGridY = useTransform(scrollYProgress, [0, 1], [0, 60])
-  // Contenido sube más rápido que el scroll para revelar la sección inferior
-  const heroContentY = useTransform(scrollYProgress, [0, 1], [0, -180])
-  const heroContentOpacity = useTransform(scrollYProgress, [0, 0.75, 1], [1, 1, 0.72])
-  const heroContentScale = useTransform(scrollYProgress, [0, 1], [1, 0.94])
-  const heroBrandY = useTransform(scrollYProgress, [0, 1], [0, -64])
-  const heroBlobLeftY = useTransform(scrollYProgress, [0, 1], [0, 90])
-  const heroBlobRightY = useTransform(scrollYProgress, [0, 1], [0, -70])
+  const heroBgY = useTransform(scrollYProgress, [0, 1], scrollMotionEnabled ? [0, 120] : [0, 0])
+  const heroGridY = useTransform(scrollYProgress, [0, 1], scrollMotionEnabled ? [0, 60] : [0, 0])
+  const heroContentY = useTransform(scrollYProgress, [0, 1], scrollMotionEnabled ? [0, -180] : [0, 0])
+  const heroContentOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.75, 1],
+    scrollMotionEnabled ? [1, 1, 0.72] : [1, 1, 1],
+  )
+  const heroContentScale = useTransform(scrollYProgress, [0, 1], scrollMotionEnabled ? [1, 0.94] : [1, 1])
+  const heroBrandY = useTransform(scrollYProgress, [0, 1], scrollMotionEnabled ? [0, -64] : [0, 0])
+  const heroBlobLeftY = useTransform(scrollYProgress, [0, 1], scrollMotionEnabled ? [0, 90] : [0, 0])
+  const heroBlobRightY = useTransform(scrollYProgress, [0, 1], scrollMotionEnabled ? [0, -70] : [0, 0])
 
   return (
     <section
       ref={sectionRef}
-      className="relative flex min-h-svh w-full flex-col overflow-x-hidden bg-white pt-[calc(4rem+env(safe-area-inset-top,0px))] sm:pt-[calc(4rem+env(safe-area-inset-top,0px))]"
+      className={cn(
+        'relative flex w-full flex-col overflow-x-clip bg-white touch-pan-y',
+        'pt-[calc(4rem+env(safe-area-inset-top,0px))]',
+        'max-md:pb-0',
+        'md:min-h-[calc(100svh-env(safe-area-inset-top,0px))]',
+      )}
     >
       <motion.div style={{ y: heroBgY }} className="hero-gradient absolute inset-0" aria-hidden />
       <motion.div style={{ y: heroGridY }} className="bg-grid absolute inset-0" aria-hidden />
@@ -475,15 +442,29 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Área central: stickers móvil con parallax propio + copy con salida parallax */}
-      <div className="pointer-events-auto relative z-10 mx-auto flex w-full max-w-lg flex-1 flex-col items-center justify-center px-4 pb-6 pt-4 text-center sm:max-w-xl sm:pb-8 sm:pt-0 lg:max-w-2xl">
-        <div className="relative w-full overflow-visible px-1 py-16 sm:py-0">
-          {/* Stickers fuera del transform del copy — solo se mueven con su parallax de scroll */}
-          <HeroMobileStickers scrollYProgress={scrollYProgress} />
+      {/* Móvil: bloque centrado en el viewport (debajo del navbar). Desktop: layout anterior */}
+      <div
+        className={cn(
+          'relative z-10 mx-auto flex w-full max-w-lg shrink-0 flex-col items-center px-4 text-center sm:max-w-xl lg:max-w-2xl',
+          'max-md:min-h-[calc(100svh-4rem-env(safe-area-inset-top,0px))] max-md:justify-center max-md:py-4',
+          'md:flex-1 md:justify-center md:pb-8 md:pt-0',
+        )}
+      >
+        <div
+          className={cn(
+            'relative flex w-full flex-col justify-center gap-2 px-1',
+            'md:block md:min-h-[calc(100svh-4rem-env(safe-area-inset-top,0px))] md:gap-0 md:py-16',
+          )}
+        >
+          <HeroMobileStickerRow cards={floatingCardsMobileTop} align="end" />
 
           <motion.div
-            style={{ y: heroContentY, opacity: heroContentOpacity, scale: heroContentScale }}
-            className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center text-center"
+            style={
+              scrollMotionEnabled
+                ? { y: heroContentY, opacity: heroContentOpacity, scale: heroContentScale }
+                : undefined
+            }
+            className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center py-2 text-center md:py-0"
           >
             <motion.h1
               animate={{ opacity: 1, y: 0 }}
@@ -546,11 +527,20 @@ export function Hero() {
               </Button>
             </motion.div>
           </motion.div>
+
+          <HeroMobileStickerRow
+            cards={floatingCardsMobileBottom}
+            align="start"
+            floatDelayOffset={0.3}
+          />
         </div>
       </div>
 
-      {/* Banners de marcas — también se mueven con parallax al scroll */}
-      <motion.div style={{ y: heroBrandY }} className="relative z-20 w-full">
+      {/* Banners debajo del copy en móvil (z bajo) para no tapar título ni CTAs */}
+      <motion.div
+        style={scrollMotionEnabled ? { y: heroBrandY } : undefined}
+        className="relative z-[1] w-full shrink-0 max-md:mt-0 md:z-20"
+      >
         <BrandBanners variant="hero" />
       </motion.div>
     </section>

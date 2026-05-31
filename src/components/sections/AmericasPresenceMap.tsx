@@ -58,6 +58,8 @@ type AmericasPresenceMapProps = {
   onSelect: (id: PresenceCountry['id']) => void
   /** Atenúa países y rutas que no están activos (scroll-driven) */
   dimInactive?: boolean
+  /** Móvil: mapa más bajo para dejar sitio a tarjeta y logos */
+  compact?: boolean
 }
 
 /**
@@ -69,6 +71,7 @@ export function AmericasPresenceMap({
   activeId,
   onSelect,
   dimInactive = false,
+  compact = false,
 }: AmericasPresenceMapProps) {
   const [geoFeatures, setGeoFeatures] = useState<Feature<Geometry>[]>([])
   const [loadError, setLoadError] = useState(false)
@@ -149,7 +152,12 @@ export function AmericasPresenceMap({
   return (
     <div className="relative w-full min-w-0">
       {/* Solo aspect-ratio: evita min-height fijos que rompen el grid y provocan solapamiento */}
-      <div className="relative aspect-[41/26] w-full overflow-hidden rounded-3xl border border-border bg-[#e8f4f8] shadow-sm">
+      <div
+        className={cn(
+          'relative w-full overflow-hidden rounded-2xl border border-border bg-[#e8f4f8] shadow-sm sm:rounded-3xl',
+          compact ? 'aspect-[5/3]' : 'aspect-[41/26]',
+        )}
+      >
         {/* Océano con degradado suave */}
         <div
           className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#dceef5] via-[#e8f4f8] to-[#d4e8f0]"

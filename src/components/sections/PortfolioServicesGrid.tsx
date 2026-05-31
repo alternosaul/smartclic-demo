@@ -30,7 +30,7 @@ export function PortfolioServicesGrid() {
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
         {t.solutions.badge}
       </p>
-      <ul className="mt-4 grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-1 lg:gap-2.5">
+      <ul className="mt-4 grid grid-cols-2 auto-rows-fr items-stretch gap-2.5 sm:gap-3 max-lg:mb-1 lg:mb-0 lg:auto-rows-auto lg:grid-cols-1 lg:gap-2.5">
         {items.map((item, i) => {
           const Icon = SERVICE_ICONS[i] ?? Code2
           const isActive = activeIndex === i
@@ -38,6 +38,7 @@ export function PortfolioServicesGrid() {
           return (
             <motion.li
               key={item.title}
+              className="flex h-full min-h-0"
               initial={reducedMotion ? false : { opacity: 0, x: -12 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -48,7 +49,8 @@ export function PortfolioServicesGrid() {
                 onMouseEnter={() => setActiveIndex(i)}
                 onFocus={() => setActiveIndex(i)}
                 className={cn(
-                  'flex w-full items-start gap-3 rounded-xl border p-3 text-left transition-all duration-500',
+                  'flex h-full w-full items-start gap-2.5 rounded-xl border p-3 text-left transition-all duration-500 sm:gap-3',
+                  'max-lg:min-h-[9.5rem]',
                   isActive
                     ? 'border-primary/40 bg-primary/8 shadow-md shadow-primary/10'
                     : 'border-border bg-secondary/50 hover:border-primary/25',
@@ -62,8 +64,8 @@ export function PortfolioServicesGrid() {
                 >
                   <Icon className="h-4 w-4" strokeWidth={1.75} aria-hidden />
                 </span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-semibold leading-snug text-foreground">
+                <span className="flex min-h-0 min-w-0 flex-1 flex-col">
+                  <span className="text-sm font-semibold leading-snug text-foreground">
                     {item.title}
                     {'titleLine2' in item && item.titleLine2 ? (
                       <span className="block text-xs font-medium text-muted-foreground">
@@ -71,7 +73,7 @@ export function PortfolioServicesGrid() {
                       </span>
                     ) : null}
                   </span>
-                  <span className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground">
+                  <span className="mt-1 line-clamp-3 flex-1 text-xs leading-snug text-muted-foreground">
                     {item.description}
                   </span>
                 </span>

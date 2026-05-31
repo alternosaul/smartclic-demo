@@ -93,6 +93,8 @@ function PortfolioCardSwap({ projects }: { projects: PortfolioProject[] }) {
   const { t } = useLanguage()
   const cardSwapRef = useRef<CardSwapHandle>(null)
   const [cardSize, setCardSize] = useState({ width: 300, height: 390 })
+  // En móvil/tablet el stack crece hacia abajo para no invadir el grid de servicios
+  const [stackDown, setStackDown] = useState(false)
 
   useEffect(() => {
     const update = () => {
@@ -100,21 +102,32 @@ function PortfolioCardSwap({ projects }: { projects: PortfolioProject[] }) {
       if (w < 640) setCardSize({ width: Math.min(w - 48, 320), height: 380 })
       else if (w < 1024) setCardSize({ width: 420, height: 420 })
       else setCardSize({ width: 480, height: 440 })
+      setStackDown(w < 1024)
     }
     update()
     window.addEventListener('resize', update, { passive: true })
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  const stackPad = Math.max(0, projects.length - 1) * 52
+  const cardCount = projects.length
+  const stackPad = Math.max(0, cardCount - 1) * 52
+  // Distancia vertical entre tarjetas en el stack (debe coincidir con CardSwap)
+  const verticalDistance = stackDown ? 48 : 70
+  const stackOverflowY = stackDown ? Math.max(0, cardCount - 1) * verticalDistance : 0
+  const stackPaddingUp = stackPad * 0.45
 
   return (
     <div
       className={cn(
-        'relative flex w-full items-center justify-center gap-1 sm:gap-3',
+        'relative flex w-full items-center justify-center gap-1 overflow-visible sm:gap-3',
+        'max-lg:mt-4 max-lg:pt-2',
         'lg:max-w-[min(100%,42rem)] lg:justify-end lg:justify-self-end lg:gap-2 xl:max-w-[min(100%,44rem)]',
       )}
-      style={{ paddingTop: stackPad * 0.45, paddingBottom: 8 }}
+      style={
+        stackDown
+          ? { paddingTop: 12, paddingBottom: stackOverflowY + 20 }
+          : { paddingTop: stackPaddingUp, paddingBottom: 8 }
+      }
     >
       <button
         type="button"
@@ -133,12 +146,13 @@ function PortfolioCardSwap({ projects }: { projects: PortfolioProject[] }) {
         width={cardSize.width}
         height={cardSize.height}
         cardDistance={60}
-        verticalDistance={70}
+        verticalDistance={verticalDistance}
         delay={4500}
         autoStart={false}
         pauseOnHover
         skewAmount={6}
         easing="linear"
+        stackDown={stackDown}
         className="card-swap-container--center shrink-0"
       >
         {projects.map((project, i) => (
@@ -176,7 +190,7 @@ export function Portfolio() {
   return (
     <section
       id="trabajos"
-      className="relative overflow-x-hidden bg-white pt-8 pb-6 sm:pt-12 sm:pb-8"
+      className="relative overflow-x-clip overflow-y-visible bg-white pt-8 pb-6 sm:pt-12 sm:pb-8"
     >
       {/* Orbes decorativos fijos — sin parallax */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
@@ -205,8 +219,10 @@ export function Portfolio() {
               Desktop: servicios a la izquierda, carrusel desplazado a la derecha.
               Móvil: servicios arriba en 2 columnas, carrusel centrado abajo.
             */}
-            <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-[minmax(240px,30%)_minmax(0,1fr)] lg:gap-6 xl:grid-cols-[minmax(260px,28%)_minmax(0,1fr)] xl:gap-10">
-              <PortfolioServicesGrid />
+            <div className="grid grid-cols-1 items-start gap-12 max-lg:gap-14 lg:grid-cols-[minmax(240px,30%)_minmax(0,1fr)] lg:items-center lg:gap-6 xl:grid-cols-[minmax(260px,28%)_minmax(0,1fr)] xl:gap-10">
+              <div className="relative z-10 w-full max-lg:pb-2">
+                <PortfolioServicesGrid />
+              </div>
               <PortfolioCardSwap projects={projects} />
             </div>
           </div>
