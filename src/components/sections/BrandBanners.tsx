@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { motion, useMotionValue, useTransform } from 'motion/react'
 import { useLanguage } from '@/i18n/LanguageProvider'
+import { useMediaQuery } from '@/hooks/use-media-query'
 import { cn } from '@/lib/utils'
 
 const brandsRowRight = [
@@ -204,6 +205,8 @@ function useInfiniteMarquee(
   reverse = false,
   scrollSpeed = 0.85,
   initialPhase = 0,
+  /** En móvil desactivar: el listener de scroll compite con scroll nativo y causa jank */
+  enableScrollCoupling = true,
 ) {
   const offset = useMotionValue(0)
   const ready = useRef(false)
@@ -219,16 +222,23 @@ function useInfiniteMarquee(
 
     const step = reverse ? -0.5 : 0.5
     let lastY = window.scrollY
+    let scrollRaf = 0
 
     const onScroll = () => {
-      const deltaY = window.scrollY - lastY
-      if (deltaY === 0) return
-      const scrollDelta = reverse ? -deltaY * scrollSpeed : deltaY * scrollSpeed
-      offset.set(offset.get() + scrollDelta)
-      lastY = window.scrollY
+      if (scrollRaf) return
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = 0
+        const deltaY = window.scrollY - lastY
+        if (deltaY === 0) return
+        const scrollDelta = reverse ? -deltaY * scrollSpeed : deltaY * scrollSpeed
+        offset.set(offset.get() + scrollDelta)
+        lastY = window.scrollY
+      })
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true })
+    if (enableScrollCoupling) {
+      window.addEventListener('scroll', onScroll, { passive: true })
+    }
 
     let raf = 0
     const drift = () => {
@@ -238,10 +248,13 @@ function useInfiniteMarquee(
     raf = requestAnimationFrame(drift)
 
     return () => {
-      window.removeEventListener('scroll', onScroll)
+      if (enableScrollCoupling) {
+        window.removeEventListener('scroll', onScroll)
+      }
+      if (scrollRaf) cancelAnimationFrame(scrollRaf)
       cancelAnimationFrame(raf)
     }
-  }, [offset, scrollSpeed, reverse, cycleWidth])
+  }, [offset, scrollSpeed, reverse, cycleWidth, enableScrollCoupling])
 
   // Módulo solo en render: el estado crece sin saltos bruscos
   const x = useTransform(offset, (v) => {
@@ -284,6 +297,7 @@ type BrandRowProps = {
   locale: 'es' | 'en'
   rowTilt: string
   compact?: boolean
+  enableScrollCoupling?: boolean
 }
 
 /** Carrusel infinito: 2 ciclos idénticos + translateX negativo */
@@ -294,6 +308,7 @@ function BrandRow({
   locale,
   rowTilt,
   compact,
+  enableScrollCoupling = true,
 }: BrandRowProps) {
   const cycleRef = useRef<HTMLDivElement>(null)
   const [cycleWidth, setCycleWidth] = useState(0)
@@ -304,7 +319,7 @@ function BrandRow({
     [brands, viewportKey],
   )
 
-  const x = useInfiniteMarquee(cycleWidth, reverse, 0.85, initialPhase)
+  const x = useInfiniteMarquee(cycleWidth, reverse, 0.85, initialPhase, enableScrollCoupling)
 
   useLayoutEffect(() => {
     const el = cycleRef.current
@@ -353,13 +368,16 @@ function BrandRow({
 export function BrandBanners({ variant = 'section' }: BrandBannersProps) {
   const { locale, t } = useLanguage()
   const isHero = variant === 'hero'
+  // Móvil: solo autoplay del marquee, sin acoplar al scroll de la página
+  const isMobile = useMediaQuery('(max-width: 767px)')
+  const enableScrollCoupling = !isMobile
 
   const banners = (
     <div
       className={cn(
         'w-full',
         isHero &&
-          'pointer-events-none relative mx-auto w-full max-w-none shrink-0 overflow-hidden pb-3 max-md:mb-0 max-md:rotate-0 max-md:pb-3 sm:mb-2 sm:w-[140vw] sm:-rotate-[3deg] sm:pb-6 sm:origin-center',
+          'pointer-events-none relative mx-auto w-full max-w-full shrink-0 overflow-x-clip pb-3 max-md:mb-0 max-md:rotate-0 max-md:pb-3 sm:mb-2 sm:w-[140vw] sm:-rotate-[3deg] sm:pb-6 sm:origin-center',
       )}
     >
       <div className="flex flex-col">
@@ -368,6 +386,7 @@ export function BrandBanners({ variant = 'section' }: BrandBannersProps) {
           locale={locale}
           rowTilt={isHero ? 'rotate-[0.8deg]' : 'rotate-[1deg]'}
           compact={isHero}
+          enableScrollCoupling={enableScrollCoupling}
         />
         <BrandRow
           brands={brandsRowLeft}
@@ -376,6 +395,7 @@ export function BrandBanners({ variant = 'section' }: BrandBannersProps) {
           locale={locale}
           rowTilt={isHero ? '-rotate-[0.6deg]' : '-rotate-[0.8deg]'}
           compact={isHero}
+          enableScrollCoupling={enableScrollCoupling}
         />
       </div>
     </div>

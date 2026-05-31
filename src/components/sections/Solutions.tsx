@@ -14,7 +14,7 @@ export function Solutions() {
   return (
     <section
       id="soluciones"
-      className="relative z-10 overflow-hidden bg-white pt-10 pb-12 sm:pt-14 sm:pb-16"
+      className="relative z-10 overflow-x-clip bg-white pt-10 pb-12 sm:pt-14 sm:pb-16"
     >
       {/* Cuadrícula suave en toda la sección */}
       <SectionBrandBackground />

@@ -52,7 +52,11 @@ html {
   }
 
   html {
-    scroll-behavior: smooth;
+    /* auto: ScrollTrigger y scroll nativo en móvil; smooth solo en clics de ancla (Navbar) */
+    scroll-behavior: auto;
+    overflow-x: clip;
+    max-width: 100%;
+    overscroll-behavior-x: none;
     /* Firefox — thumb primary, track claro */
     scrollbar-width: thin;
     scrollbar-color: color-mix(in oklch, var(--color-primary) 75%, white)
@@ -83,11 +87,17 @@ html {
     @apply bg-white text-foreground antialiased;
     font-family: var(--font-sans);
     margin: 0;
-    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+    overscroll-behavior-x: none;
   }
 
   #root {
     min-height: 100svh;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
     @apply bg-white;
   }
 }

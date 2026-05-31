@@ -5,6 +5,10 @@ import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import CardSwap, { SwapCard, type CardSwapHandle } from '@/components/reactbits/CardSwap'
 import { PortfolioServicesGrid } from '@/components/sections/PortfolioServicesGrid'
+import {
+  BentoBrandGlow,
+  SectionBrandBackground,
+} from '@/components/ui/background-components'
 import { useLanguage } from '@/i18n/LanguageProvider'
 import { cn } from '@/lib/utils'
 
@@ -74,7 +78,7 @@ function PortfolioProjectCard({
 /** Grid estático cuando el usuario prefiere menos movimiento */
 function PortfolioGrid({ projects }: { projects: PortfolioProject[] }) {
   return (
-    <div className="mt-12 grid gap-6 sm:grid-cols-2">
+    <div className="grid gap-6 sm:grid-cols-2">
       {projects.map((project, i) => (
         <Link
           key={project.title}
@@ -192,14 +196,11 @@ export function Portfolio() {
       id="trabajos"
       className="relative overflow-x-clip overflow-y-visible bg-white pt-8 pb-6 sm:pt-12 sm:pb-8"
     >
-      {/* Orbes decorativos fijos — sin parallax */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
-        <div className="absolute left-1/4 top-12 h-64 w-64 rounded-full bg-primary/6 blur-[100px]" />
-        <div className="absolute right-1/4 bottom-8 h-72 w-72 rounded-full bg-accent/6 blur-[110px]" />
-      </div>
+      {/* Cuadrícula suave en toda la sección (mismo estilo que #soluciones) */}
+      <SectionBrandBackground />
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative z-10 flex flex-col items-start justify-between gap-6 pb-5 sm:flex-row sm:items-end sm:pb-7">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-start justify-between gap-6 pb-5 sm:flex-row sm:items-end sm:pb-7">
           <div>
             <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold text-foreground sm:text-4xl">
               {t.portfolio.title}
@@ -211,22 +212,28 @@ export function Portfolio() {
           </Button>
         </div>
 
-        {reducedMotion ? (
-          <PortfolioGrid projects={projects} />
-        ) : (
-          <div className="relative z-0 mt-8 overflow-visible sm:mt-10">
-            {/*
-              Desktop: servicios a la izquierda, carrusel desplazado a la derecha.
-              Móvil: servicios arriba en 2 columnas, carrusel centrado abajo.
-            */}
-            <div className="grid grid-cols-1 items-start gap-12 max-lg:gap-14 lg:grid-cols-[minmax(240px,30%)_minmax(0,1fr)] lg:items-center lg:gap-6 xl:grid-cols-[minmax(260px,28%)_minmax(0,1fr)] xl:gap-10">
-              <div className="relative z-10 w-full max-lg:pb-2">
-                <PortfolioServicesGrid />
+        {/* Glow centrado detrás del grid de servicios + carrusel de proyectos */}
+        <div className="relative mt-8 overflow-visible sm:mt-10">
+          <BentoBrandGlow />
+          <div className="relative z-10">
+            {reducedMotion ? (
+              <PortfolioGrid projects={projects} />
+            ) : (
+              <div className="overflow-visible">
+                {/*
+                  Desktop: servicios a la izquierda, carrusel desplazado a la derecha.
+                  Móvil: servicios arriba en 2 columnas, carrusel centrado abajo.
+                */}
+                <div className="grid grid-cols-1 items-start gap-12 max-lg:gap-14 lg:grid-cols-[minmax(240px,30%)_minmax(0,1fr)] lg:items-center lg:gap-6 xl:grid-cols-[minmax(260px,28%)_minmax(0,1fr)] xl:gap-10">
+                  <div className="relative w-full max-lg:pb-2">
+                    <PortfolioServicesGrid />
+                  </div>
+                  <PortfolioCardSwap projects={projects} />
+                </div>
               </div>
-              <PortfolioCardSwap projects={projects} />
-            </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </section>
   )

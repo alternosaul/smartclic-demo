@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type MouseEvent } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -28,11 +28,33 @@ export function Navbar() {
   ]
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40)
+    let scrollRaf = 0
+    const onScroll = () => {
+      if (scrollRaf) return
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = 0
+        setScrolled(window.scrollY > 40)
+      })
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      if (scrollRaf) cancelAnimationFrame(scrollRaf)
+    }
   }, [])
+
+  const closeMenu = () => setOpen(false)
+
+  /** Scroll suave solo al pulsar anclas del menú (html usa scroll-behavior: auto) */
+  const handleAnchorClick = (e: MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (!href.startsWith('#') || href === '#') return
+    const target = document.querySelector(href)
+    if (!target) return
+    e.preventDefault()
+    closeMenu()
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
@@ -40,8 +62,6 @@ export function Navbar() {
       document.body.style.overflow = ''
     }
   }, [open])
-
-  const closeMenu = () => setOpen(false)
 
   return (
     <header
@@ -72,6 +92,7 @@ export function Navbar() {
               <a
                 href={link.href}
                 className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                onClick={(e) => handleAnchorClick(e, link.href)}
               >
                 {link.label}
               </a>
@@ -84,7 +105,9 @@ export function Navbar() {
           <ThemePalette />
           <LanguageToggle />
           <Button asChild size="sm" className="rounded-full px-6">
-            <a href="#contacto">{t.nav.cta}</a>
+            <a href="#contacto" onClick={(e) => handleAnchorClick(e, '#contacto')}>
+              {t.nav.cta}
+            </a>
           </Button>
         </div>
 
@@ -168,7 +191,7 @@ export function Navbar() {
                   <a
                     href={link.href}
                     className="block py-1 text-base font-medium text-foreground sm:text-lg"
-                    onClick={closeMenu}
+                    onClick={(e) => handleAnchorClick(e, link.href)}
                   >
                     {link.label}
                   </a>
@@ -181,7 +204,7 @@ export function Navbar() {
                 }}
               >
                 <Button asChild className="mt-1 w-full rounded-full sm:mt-2">
-                  <a href="#contacto" onClick={closeMenu}>
+                  <a href="#contacto" onClick={(e) => handleAnchorClick(e, '#contacto')}>
                     {t.nav.cta}
                   </a>
                 </Button>

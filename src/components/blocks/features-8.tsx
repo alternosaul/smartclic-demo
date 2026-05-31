@@ -21,7 +21,21 @@ const TEAM_DISCIPLINE_ICONS = [Palette, Code2, Megaphone] as const
 
 /** Título unificado en todas las tarjetas del bento */
 const BENTO_CARD_TITLE_CLASS =
-  'font-[family-name:var(--font-display)] text-lg font-semibold leading-snug tracking-tight'
+  'font-[family-name:var(--font-display)] text-base font-semibold leading-snug tracking-tight lg:text-lg'
+
+/** Shell de tarjeta — compacto en móvil, altura uniforme en desktop */
+const BENTO_CARD_SHELL_CLASS = 'max-lg:gap-0 max-lg:py-0 lg:h-full lg:flex-col'
+
+/** Contenido de tarjeta — padding reducido en móvil como el layout original */
+const BENTO_CARD_CONTENT_CLASS =
+  'flex flex-col px-4 pb-4 pt-5 max-lg:pt-6 lg:flex-1 lg:px-6 lg:pb-6 lg:pt-6'
+
+/** Círculo decorativo de icono — más pequeño en móvil */
+const BENTO_ICON_ORB_CLASS =
+  'relative mx-auto flex aspect-square size-24 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-muted/30 before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5 lg:size-32'
+
+/** Bloque título + descripción bajo el icono/panel */
+const BENTO_TEXT_BLOCK_CLASS = 'mt-4 flex flex-col max-lg:flex-none lg:mt-5 lg:flex-1'
 
 /** Intervalo entre repeticiones de animaciones en #soluciones */
 const SOLUCIONES_ANIM_INTERVAL_MS = 10_000
@@ -151,7 +165,7 @@ function AnimatedShoppingCart({
         ease: ['easeOut', 'easeInOut', 'easeOut'],
       }}
     >
-      <ShoppingCart className="size-14 text-primary" strokeWidth={1.25} />
+      <ShoppingCart className="size-12 text-primary lg:size-14" strokeWidth={1.25} />
     </motion.div>
   )
 }
@@ -159,7 +173,7 @@ function AnimatedShoppingCart({
 /** Barras de alcance que crecen en secuencia al entrar en #soluciones (cada 10 s) */
 function AnimatedReachChart({ playKey }: { playKey: number | string }) {
   return (
-    <div className="mt-3 flex h-12 items-end justify-between gap-1 px-0.5">
+    <div className="mt-3 flex h-10 items-end justify-between gap-1 px-0.5 lg:h-12">
       {REACH_BAR_HEIGHTS.map((height, index) => (
         <motion.div
           key={`${playKey}-${index}`}
@@ -193,7 +207,7 @@ function AnimatedGrowthStockChart({ playKey }: { playKey: number | string }) {
   const lastPoint = linePoints[linePoints.length - 1]
 
   return (
-    <div className="relative mt-3 h-20 w-full">
+    <div className="relative mt-3 h-14 w-full lg:h-20">
       <svg
         viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
         className="h-full w-full overflow-visible text-primary"
@@ -413,7 +427,7 @@ function GrowthStockChartStatic() {
   const slotWidth = CHART_WIDTH / ohlc.length
 
   return (
-    <div className="relative mt-3 h-20 w-full">
+    <div className="relative mt-3 h-14 w-full lg:h-20">
       <svg
         viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
         className="h-full w-full text-primary"
@@ -510,7 +524,7 @@ function AnimatedTeamDisciplines({
               <Icon className="size-4 text-primary" strokeWidth={1.5} />
             </div>
             <p className="mt-2 text-xs font-semibold leading-tight text-foreground">{item.label}</p>
-            <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
+            <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
               {item.detail}
             </p>
           </motion.div>
@@ -544,54 +558,61 @@ export function FeaturesBento() {
     <div className="relative mx-auto max-w-5xl">
       <div className="relative">
         {/* Grid asimétrico de 6 columnas para las tarjetas de servicio */}
-        <div className="relative z-10 grid grid-cols-6 gap-3">
+        <div className="relative z-10 grid auto-rows-auto grid-cols-6 gap-2 lg:auto-rows-fr lg:items-stretch lg:gap-3">
             <BentoHoverCard
               cardId="web"
               onHoverReplay={replayOnHover}
-              className="relative col-span-full flex overflow-hidden lg:col-span-2"
+              className={cn(
+                'relative col-span-full flex overflow-hidden lg:col-span-2',
+                BENTO_CARD_SHELL_CLASS,
+              )}
             >
-              <CardContent className="relative m-auto size-fit pt-6">
+              <CardContent
+                className={cn(
+                  BENTO_CARD_CONTENT_CLASS,
+                  'items-center text-center max-lg:relative max-lg:m-auto max-lg:size-fit max-lg:pb-0',
+                )}
+              >
                 {/* Icono de ecommerce — carrito de compras */}
-                <div
-                  className="relative mx-auto flex aspect-square size-32 items-center justify-center overflow-hidden rounded-full border bg-muted/30 before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5"
-                  aria-hidden
-                >
+                <div className={BENTO_ICON_ORB_CLASS} aria-hidden>
                   {reducedMotion ? (
-                    <ShoppingCart className="size-14 text-primary" strokeWidth={1.25} />
+                    <ShoppingCart className="size-12 text-primary lg:size-14" strokeWidth={1.25} />
                   ) : (
                     <AnimatedShoppingCart playKey={animKey('web')} />
                   )}
                 </div>
-                <h2 className={cn(BENTO_CARD_TITLE_CLASS, 'mt-6 text-center')}>
-                  {bento.web.title}
-                </h2>
-                <p className="mt-2 text-center text-sm text-muted-foreground">
-                  {bento.web.description}
-                </p>
+                <div className={BENTO_TEXT_BLOCK_CLASS}>
+                  <h2 className={cn(BENTO_CARD_TITLE_CLASS, 'text-center')}>
+                    {bento.web.title}
+                  </h2>
+                  <p className="mt-1.5 text-center text-sm leading-relaxed text-muted-foreground lg:mt-2">
+                    {bento.web.description}
+                  </p>
+                </div>
               </CardContent>
             </BentoHoverCard>
             <BentoHoverCard
               cardId="branding"
               onHoverReplay={replayOnHover}
-              className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2"
+              className={cn(
+                'relative col-span-full flex overflow-hidden sm:col-span-3 lg:col-span-2',
+                BENTO_CARD_SHELL_CLASS,
+              )}
             >
-              <CardContent className="pt-6">
+              <CardContent className={cn(BENTO_CARD_CONTENT_CLASS, 'items-center text-center')}>
                 {/* Mini kit de marca: paleta, tipografía y logotipo */}
-                <div
-                  className="relative mx-auto flex aspect-square size-32 items-center justify-center rounded-full border bg-muted/30 before:absolute before:-inset-2 before:rounded-full before:border dark:border-white/10 dark:before:border-white/5"
-                  aria-hidden
-                >
+                <div className={BENTO_ICON_ORB_CLASS} aria-hidden>
                   {reducedMotion ? (
                     <BrandingKitStatic />
                   ) : (
                     <AnimatedBrandingKit playKey={animKey('branding')} />
                   )}
                 </div>
-                <div className="relative z-10 mt-6 space-y-2 text-center">
+                <div className={BENTO_TEXT_BLOCK_CLASS}>
                   <h2 className={cn(BENTO_CARD_TITLE_CLASS, 'text-center')}>
                     {bento.branding.title}
                   </h2>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground lg:mt-2">
                     {bento.branding.description}
                   </p>
                 </div>
@@ -600,60 +621,61 @@ export function FeaturesBento() {
             <BentoHoverCard
               cardId="marketing"
               onHoverReplay={replayOnHover}
-              className="relative col-span-full overflow-hidden sm:col-span-3 lg:col-span-2"
+              className={cn(
+                'relative col-span-full flex overflow-hidden sm:col-span-3 lg:col-span-2',
+                BENTO_CARD_SHELL_CLASS,
+              )}
             >
-              <CardContent className="pt-6">
-                <div className="pt-6 lg:px-6">
-                  {/* Panel de campaña: alcance, engagement y crecimiento */}
-                  <div
-                    className="mx-auto w-full rounded-xl border border-border bg-muted/20 p-3 shadow-sm"
-                    aria-hidden
-                  >
-                    <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2.5">
-                      <div className="flex items-center gap-2">
-                        <div className="flex size-8 items-center justify-center rounded-full bg-primary/15">
-                          <Megaphone
-                            className="size-4 text-primary"
-                            strokeWidth={1.5}
-                          />
-                        </div>
-                        <span className="text-xs font-medium text-foreground">
-                          {bento.marketing.reachLabel}
-                        </span>
+              <CardContent className={BENTO_CARD_CONTENT_CLASS}>
+                {/* Panel de campaña: alcance, engagement y crecimiento */}
+                <div
+                  className="mx-auto w-full max-w-sm rounded-xl border border-border bg-muted/20 p-2.5 shadow-sm lg:p-3"
+                  aria-hidden
+                >
+                  <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <div className="flex size-8 items-center justify-center rounded-full bg-primary/15">
+                        <Megaphone
+                          className="size-4 text-primary"
+                          strokeWidth={1.5}
+                        />
                       </div>
-                      <span className="flex items-center gap-0.5 text-xs font-semibold text-primary">
-                        <TrendingUp className="size-3.5" strokeWidth={2} />
-                        {bento.marketing.growthBadge}
+                      <span className="text-xs font-medium text-foreground">
+                        {bento.marketing.reachLabel}
                       </span>
                     </div>
-                    {reducedMotion ? (
-                      <div className="mt-3 flex h-12 items-end justify-between gap-1 px-0.5">
-                        {REACH_BAR_HEIGHTS.map((height, index) => (
-                          <div
-                            key={index}
-                            className="w-full flex-1 rounded-full bg-primary"
-                            style={{ height: `${height}%` }}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <AnimatedReachChart playKey={animKey('marketing')} />
-                    )}
-                    <div className="mt-2.5 flex items-center justify-center gap-4 text-muted-foreground">
-                      <Heart className="size-3.5" strokeWidth={1.5} />
-                      <Share2 className="size-3.5" strokeWidth={1.5} />
-                      <TrendingUp
-                        className="size-3.5 text-primary"
-                        strokeWidth={1.5}
-                      />
+                    <span className="flex items-center gap-0.5 text-xs font-semibold text-primary">
+                      <TrendingUp className="size-3.5" strokeWidth={2} />
+                      {bento.marketing.growthBadge}
+                    </span>
+                  </div>
+                  {reducedMotion ? (
+                    <div className="mt-3 flex h-10 items-end justify-between gap-1 px-0.5 lg:h-12">
+                      {REACH_BAR_HEIGHTS.map((height, index) => (
+                        <div
+                          key={index}
+                          className="w-full flex-1 rounded-full bg-primary"
+                          style={{ height: `${height}%` }}
+                        />
+                      ))}
                     </div>
+                  ) : (
+                    <AnimatedReachChart playKey={animKey('marketing')} />
+                  )}
+                  <div className="mt-2.5 flex items-center justify-center gap-4 text-muted-foreground">
+                    <Heart className="size-3.5" strokeWidth={1.5} />
+                    <Share2 className="size-3.5" strokeWidth={1.5} />
+                    <TrendingUp
+                      className="size-3.5 text-primary"
+                      strokeWidth={1.5}
+                    />
                   </div>
                 </div>
-                <div className="relative z-10 mt-8 space-y-2 text-center">
+                <div className={cn(BENTO_TEXT_BLOCK_CLASS, 'text-center')}>
                   <h2 className={cn(BENTO_CARD_TITLE_CLASS, 'text-center')}>
                     {bento.marketing.title}
                   </h2>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground lg:mt-2">
                     {bento.marketing.description}
                   </p>
                 </div>
@@ -662,23 +684,26 @@ export function FeaturesBento() {
             <BentoHoverCard
               cardId="growth"
               onHoverReplay={replayOnHover}
-              className="relative col-span-full overflow-hidden lg:col-span-3"
+              className={cn(
+                'relative col-span-full flex overflow-hidden lg:col-span-3',
+                BENTO_CARD_SHELL_CLASS,
+              )}
             >
-              <CardContent className="flex flex-col gap-4 pt-6 pb-6">
+              <CardContent className={cn(BENTO_CARD_CONTENT_CLASS, 'gap-3 lg:gap-4')}>
                 {/* Encabezado compacto: icono + título + descripción */}
-                <div className="flex items-start gap-3 px-6">
-                  <div className="relative flex size-11 shrink-0 items-center justify-center rounded-full border bg-muted/30">
-                    <Shield className="size-5 text-primary" strokeWidth={1.5} />
+                <div className="flex items-start gap-2.5 lg:gap-3">
+                  <div className="relative flex size-9 shrink-0 items-center justify-center rounded-full border bg-muted/30 lg:size-11">
+                    <Shield className="size-4 text-primary lg:size-5" strokeWidth={1.5} />
                   </div>
-                  <div className="min-w-0 space-y-1">
+                  <div className="min-w-0 flex-1 space-y-1">
                     <h2 className={BENTO_CARD_TITLE_CLASS}>{bento.growth.title}</h2>
-                    <p className="text-sm leading-snug text-muted-foreground">
+                    <p className="text-sm leading-relaxed text-muted-foreground">
                       {bento.growth.description}
                     </p>
                   </div>
                 </div>
                 {/* Panel de métricas — ocupa el ancho restante sin overflow */}
-                <div className="mx-6 rounded-xl border border-border bg-muted/20 p-3 shadow-sm">
+                <div className="rounded-xl border border-border bg-muted/20 p-2.5 shadow-sm lg:p-3">
                   <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2">
                     <span className="text-xs font-medium text-foreground">
                       {bento.growth.metricsLabel}
@@ -699,23 +724,26 @@ export function FeaturesBento() {
             <BentoHoverCard
               cardId="team"
               onHoverReplay={replayOnHover}
-              className="relative col-span-full overflow-hidden lg:col-span-3"
+              className={cn(
+                'relative col-span-full flex overflow-hidden lg:col-span-3',
+                BENTO_CARD_SHELL_CLASS,
+              )}
             >
-              <CardContent className="flex flex-col gap-4 pt-6 pb-6">
+              <CardContent className={cn(BENTO_CARD_CONTENT_CLASS, 'gap-3 lg:gap-4')}>
                 {/* Encabezado compacto: icono + título + descripción */}
-                <div className="flex items-start gap-3 px-6">
-                  <div className="relative flex size-11 shrink-0 items-center justify-center rounded-full border bg-muted/30">
-                    <Users className="size-5 text-primary" strokeWidth={1.5} />
+                <div className="flex items-start gap-2.5 lg:gap-3">
+                  <div className="relative flex size-9 shrink-0 items-center justify-center rounded-full border bg-muted/30 lg:size-11">
+                    <Users className="size-4 text-primary lg:size-5" strokeWidth={1.5} />
                   </div>
-                  <div className="min-w-0 space-y-1">
+                  <div className="min-w-0 flex-1 space-y-1">
                     <h2 className={BENTO_CARD_TITLE_CLASS}>{bento.team.title}</h2>
-                    <p className="text-sm leading-snug text-muted-foreground">
+                    <p className="text-sm leading-relaxed text-muted-foreground">
                       {bento.team.description}
                     </p>
                   </div>
                 </div>
                 {/* Disciplinas en grid horizontal — llena el ancho de la tarjeta */}
-                <div className="px-6">
+                <div>
                   <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
                     {bento.team.flowLabel}
                   </p>
@@ -734,7 +762,7 @@ export function FeaturesBento() {
                             <p className="mt-2 text-xs font-semibold leading-tight text-foreground">
                               {item.label}
                             </p>
-                            <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
+                            <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
                               {item.detail}
                             </p>
                           </div>

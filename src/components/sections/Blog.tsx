@@ -3,7 +3,7 @@ import { useReducedMotion } from 'motion/react'
 import { ArrowRight, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import { ScrollTrigger } from '@/lib/gsap'
+import { ScrollTrigger, debouncedScrollTriggerRefresh } from '@/lib/gsap'
 import { useLanguage } from '@/i18n/LanguageProvider'
 import { cn } from '@/lib/utils'
 
@@ -91,9 +91,9 @@ function BlogHeaderContent({ showScrollHint = false }: { showScrollHint?: boolea
   const { t } = useLanguage()
 
   return (
-    <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
-      <div className="max-w-xl">
-        <h2 className="sonsie-one-regular text-[clamp(2.25rem,5vw,3.5rem)] leading-tight text-foreground">
+    <div className="flex w-full flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
+      <div className="min-w-0 w-full flex-1">
+        <h2 className="sonsie-one-regular w-full text-[clamp(2.25rem,5vw,3.5rem)] leading-tight text-foreground">
           {t.blog.badge}
         </h2>
         <p className="mt-3 text-lg font-semibold leading-snug text-foreground sm:text-xl">
@@ -132,6 +132,7 @@ function BlogStickyStack({
   const stageRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
   const [activeIndex, setActiveIndex] = useState(0)
+  const activeIndexRef = useRef(0)
   const [cardStickyTopPx, setCardStickyTopPx] = useState(NAVBAR_HEIGHT_PX + 220)
   const [useStackLayout, setUseStackLayout] = useState(false)
 
@@ -149,6 +150,7 @@ function BlogStickyStack({
     }
 
     let progressTrigger: ScrollTrigger | undefined
+    let resizeTimer: ReturnType<typeof setTimeout> | undefined
 
     const setup = () => {
       progressTrigger?.kill()
@@ -156,8 +158,9 @@ function BlogStickyStack({
       setUseStackLayout(media.matches)
 
       if (!media.matches) {
+        activeIndexRef.current = 0
         setActiveIndex(0)
-        ScrollTrigger.refresh()
+        debouncedScrollTriggerRefresh(0)
         return
       }
 
@@ -167,23 +170,34 @@ function BlogStickyStack({
         start: `top ${NAVBAR_HEIGHT_PX}`,
         end: 'bottom bottom',
         onUpdate: (self) => {
-          setActiveIndex(
-            Math.min(posts.length - 1, Math.floor(self.progress * posts.length)),
+          const nextIndex = Math.min(
+            posts.length - 1,
+            Math.floor(self.progress * posts.length),
           )
+          if (nextIndex !== activeIndexRef.current) {
+            activeIndexRef.current = nextIndex
+            setActiveIndex(nextIndex)
+          }
         },
       })
 
-      ScrollTrigger.refresh()
+      debouncedScrollTriggerRefresh(0)
+    }
+
+    const debouncedSetup = () => {
+      if (resizeTimer) clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(setup, 150)
     }
 
     const onModeChange = () => setup()
     media.addEventListener('change', onModeChange)
     setup()
-    window.addEventListener('resize', setup)
+    window.addEventListener('resize', debouncedSetup)
 
     return () => {
       media.removeEventListener('change', onModeChange)
-      window.removeEventListener('resize', setup)
+      window.removeEventListener('resize', debouncedSetup)
+      if (resizeTimer) clearTimeout(resizeTimer)
       progressTrigger?.kill()
       ScrollTrigger.getById('blog-scroll-pin')?.kill()
       ScrollTrigger.getById('blog-header-pin')?.kill()
@@ -191,10 +205,10 @@ function BlogStickyStack({
   }, [locale, posts.length, t.blog.badge, t.blog.title, t.blog.description])
 
   return (
-    <div ref={stageRef} className="blog-sticky-stage relative mx-auto w-full max-w-4xl">
+    <div ref={stageRef} className="blog-sticky-stage relative w-full">
       <header
         ref={headerRef}
-        className="sticky top-16 z-50 border-b border-border bg-white pb-4 shadow-sm"
+        className="sticky top-16 z-50 w-full border-b border-border bg-white pb-4"
       >
         <BlogHeaderContent showScrollHint={useStackLayout} />
 
@@ -219,8 +233,8 @@ function BlogStickyStack({
         ) : null}
       </header>
 
-      {/* Tarjetas en flujo: altura real, sin hueco artificial */}
-      <div className="relative mt-6 pb-8 sm:mt-8">
+      {/* Tarjetas en columna más estrecha; cabecera usa todo el ancho de la sección */}
+      <div className="relative mx-auto mt-6 w-full max-w-4xl pb-8 sm:mt-8">
         {useStackLayout ? (
           posts.map((post, index) => (
             <div
@@ -276,8 +290,8 @@ export function Blog() {
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {reducedMotion ? (
-          <div className="flex flex-col">
-            <div className="blog-scroll-header relative z-30">
+          <div className="flex w-full flex-col">
+            <div className="blog-scroll-header relative z-30 w-full">
               <BlogHeaderContent />
             </div>
             <div className="relative mx-auto mt-6 w-full max-w-4xl space-y-5 sm:mt-8">

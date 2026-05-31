@@ -12,15 +12,20 @@ import {
 } from '@/data/presencePartners'
 import { useLanguage } from '@/i18n/LanguageProvider'
 import { useMediaQuery } from '@/hooks/use-media-query'
-import { ScrollTrigger } from '@/lib/gsap'
+import { ScrollTrigger, debouncedScrollTriggerRefresh } from '@/lib/gsap'
 import { cn } from '@/lib/utils'
 
 /** Offset del navbar para alinear el pin con el scroll */
 const NAVBAR_OFFSET = 64
 
-/** Píxeles de scroll por país — móvil necesita tramo largo (el bloque cabe casi entero en pantalla) */
-const SCROLL_PER_COUNTRY_MOBILE = 0.34
+/** Píxeles de scroll por país en desktop (pin GSAP) */
 const SCROLL_PER_COUNTRY_DESKTOP = 0.38
+
+/** Tramo de scroll por país en móvil (sticky nativo + spacer, sin pin GSAP) */
+const SCROLL_PER_COUNTRY_MOBILE = 0.34
+
+/** Top del bloque sticky en móvil — alineado con navbar fijo */
+const MOBILE_STICKY_TOP = 'calc(4rem + env(safe-area-inset-top, 0px))'
 
 /** Bandera (ISO alpha-2) por mercado — mismo id que en traducciones */
 const FLAG_CDN: Record<PresenceCountry['id'], string> = {
@@ -183,8 +188,11 @@ export function PresenceMap() {
   const countries = t.presence.countries as readonly PresenceCountry[]
   const reducedMotion = useReducedMotion()
   const isMobile = useMediaQuery('(max-width: 767px)')
+  const scrollTrackRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const [activeId, setActiveId] = useState<PresenceCountry['id']>('mx')
+  // Ref evita setState en cada frame de scroll (solo cuando cambia el país)
+  const activeIdRef = useRef<PresenceCountry['id']>('mx')
   const scrollDriven = !reducedMotion
   // Altura mínima del bloque pinneado solo en desktop (móvil: altura natural)
   const useDesktopPinMinHeight = scrollDriven && !isMobile
@@ -197,52 +205,75 @@ export function PresenceMap() {
       Math.floor(clamped * countries.length),
     )
     const nextId = countries[index]?.id
-    if (nextId) setActiveId(nextId)
+    if (nextId && nextId !== activeIdRef.current) {
+      activeIdRef.current = nextId
+      setActiveId(nextId)
+    }
   }
 
   useLayoutEffect(() => {
-    if (!scrollDriven || !contentRef.current) return
+    if (!scrollDriven || !scrollTrackRef.current) return
 
     let trigger: ScrollTrigger | undefined
+    let resizeTimer: ReturnType<typeof setTimeout> | undefined
 
     const setup = () => {
       trigger?.kill()
-      const el = contentRef.current
-      if (!el) return
-
       const mobile = window.matchMedia('(max-width: 767px)').matches
-      const scrollPerCountry = Math.round(
-        window.innerHeight *
-          (mobile ? SCROLL_PER_COUNTRY_MOBILE : SCROLL_PER_COUNTRY_DESKTOP),
-      )
-      const endDistance = scrollPerCountry * countries.length
+      const trackEl = scrollTrackRef.current
+      if (!trackEl) return
 
-      // Mismo tramo por país en móvil y desktop; pin mantiene mapa + logos visibles al avanzar
-      trigger = ScrollTrigger.create({
-        trigger: el,
-        start: `top ${NAVBAR_OFFSET}`,
-        end: `+=${endDistance}`,
-        pin: true,
-        pinSpacing: true,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-        // transform en móvil evita artefactos de position:fixed + sticky al terminar el pin
-        pinType: mobile ? 'transform' : 'fixed',
-        onUpdate: (self) => syncActiveFromProgress(self.progress),
-      })
-      ScrollTrigger.refresh()
+      if (mobile) {
+        // Móvil: sticky CSS + spacer — el mapa permanece visible mientras avanza el scroll
+        trigger = ScrollTrigger.create({
+          trigger: trackEl,
+          start: `top ${NAVBAR_OFFSET}`,
+          end: 'bottom bottom',
+          invalidateOnRefresh: true,
+          onUpdate: (self) => syncActiveFromProgress(self.progress),
+        })
+      } else {
+        const contentEl = contentRef.current
+        if (!contentEl) return
+
+        const scrollPerCountry = Math.round(
+          window.innerHeight * SCROLL_PER_COUNTRY_DESKTOP,
+        )
+        const endDistance = scrollPerCountry * countries.length
+
+        trigger = ScrollTrigger.create({
+          trigger: contentEl,
+          start: `top ${NAVBAR_OFFSET}`,
+          end: `+=${endDistance}`,
+          pin: true,
+          pinSpacing: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          pinType: 'fixed',
+          onUpdate: (self) => syncActiveFromProgress(self.progress),
+        })
+      }
+
+      debouncedScrollTriggerRefresh(0)
+    }
+
+    const debouncedSetup = () => {
+      if (resizeTimer) clearTimeout(resizeTimer)
+      resizeTimer = setTimeout(setup, 150)
     }
 
     setup()
-    window.addEventListener('resize', setup)
+    window.addEventListener('resize', debouncedSetup)
 
     return () => {
-      window.removeEventListener('resize', setup)
+      window.removeEventListener('resize', debouncedSetup)
+      if (resizeTimer) clearTimeout(resizeTimer)
       trigger?.kill()
     }
   }, [countries.length, locale, scrollDriven, isMobile])
 
   const handleSelect = (id: PresenceCountry['id']) => {
+    activeIdRef.current = id
     setActiveId(id)
   }
 
@@ -252,26 +283,46 @@ export function PresenceMap() {
       className="relative border-y border-border bg-white"
       aria-labelledby="presencia-heading"
     >
-      {/* Fondos decorativos sin parallax (evita conflictos con ScrollTrigger pin) */}
-      <div
-        className="pointer-events-none absolute -right-24 top-0 h-80 w-80 rounded-full bg-primary/8 blur-[110px]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -left-20 bottom-1/3 h-72 w-72 rounded-full bg-accent/8 blur-[100px]"
-        aria-hidden
-      />
+      {/* Fondos decorativos recortados para no provocar scroll horizontal */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+        <div className="absolute -right-24 top-0 h-80 w-80 rounded-full bg-primary/8 blur-[110px]" />
+        <div className="absolute -left-20 bottom-1/3 h-72 w-72 rounded-full bg-accent/8 blur-[100px]" />
+      </div>
 
-      <div
-        ref={contentRef}
-        className={cn(
-          'relative z-10 mx-auto flex max-w-7xl flex-col px-4 py-8 sm:px-6 sm:py-12 lg:px-8',
-          useDesktopPinMinHeight && 'min-h-[min(100svh,920px)]',
-        )}
-      >
-        {/* Sin sticky en móvil: el pin GSAP ya fija todo el bloque; sticky duplicaba el header al soltar */}
-        <header className="shrink-0 border-b border-border bg-white pb-4 sm:pb-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      {/* Track de scroll: en móvil incluye spacer para animación por país con sticky nativo */}
+      <div ref={scrollTrackRef} className="relative">
+        <div
+          ref={contentRef}
+          className={cn(
+            'relative z-10 mx-auto flex max-w-7xl flex-col px-4 sm:px-6 lg:px-8',
+            isMobile && scrollDriven ? 'sticky z-20 bg-white py-4' : 'py-8 sm:py-12',
+            useDesktopPinMinHeight && 'min-h-[min(100svh,920px)]',
+          )}
+          style={
+            isMobile && scrollDriven
+              ? { top: MOBILE_STICKY_TOP }
+              : undefined
+          }
+        >
+        {/* Cabecera: en móvil sticky anidado para que el título no desaparezca si el bloque supera el viewport */}
+        <header
+          className={cn(
+            'shrink-0 border-b border-border bg-white',
+            isMobile ? 'pb-3' : 'pb-4 sm:pb-8',
+            isMobile && scrollDriven && 'sticky z-30',
+          )}
+          style={
+            isMobile && scrollDriven
+              ? { top: MOBILE_STICKY_TOP }
+              : undefined
+          }
+        >
+          <div
+            className={cn(
+              'flex flex-col gap-4',
+              !isMobile && 'sm:flex-row sm:items-end sm:justify-between',
+            )}
+          >
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
                 {t.presence.badge}
@@ -284,7 +335,12 @@ export function PresenceMap() {
               </h2>
             </div>
             {scrollDriven ? (
-              <p className="max-w-xs text-sm text-muted-foreground sm:text-right">
+              <p
+                className={cn(
+                  'text-sm text-muted-foreground',
+                  !isMobile && 'max-w-xs sm:text-right',
+                )}
+              >
                 {t.presence.scrollHint}
               </p>
             ) : null}
@@ -292,7 +348,7 @@ export function PresenceMap() {
 
           {/* Indicador de progreso por mercado */}
           <div
-            className="mt-5 flex gap-1.5"
+            className="mt-4 flex gap-1.5 sm:mt-5"
             role="tablist"
             aria-label={t.presence.mapHint}
           >
@@ -316,7 +372,8 @@ export function PresenceMap() {
         {/* Móvil: columna mapa → país activo → logos. Desktop: grid mapa + tarjetas */}
         <div
           className={cn(
-            'mt-4 grid grid-cols-1 gap-4 sm:mt-8 sm:gap-8',
+            'grid grid-cols-1 gap-4 sm:mt-8 sm:gap-8',
+            isMobile ? 'mt-0' : 'mt-4',
             !isMobile &&
               'min-h-0 flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(260px,22rem)] lg:items-stretch lg:gap-10 xl:grid-cols-[minmax(0,1.1fr)_minmax(280px,24rem)]',
           )}
@@ -333,7 +390,7 @@ export function PresenceMap() {
             {/* Chips para elegir mercado en móvil (además del scroll) */}
             {isMobile && (
               <div
-                className="mt-3 flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="mt-3 flex flex-wrap gap-2"
                 role="tablist"
                 aria-label={t.presence.mapHint}
               >
@@ -465,6 +522,18 @@ export function PresenceMap() {
             </div>
           )}
         </div>
+        </div>
+
+        {/* Spacer invisible: extiende el scroll en móvil (~0.34 svh por país) */}
+        {isMobile && scrollDriven ? (
+          <div
+            aria-hidden
+            className="pointer-events-none w-full"
+            style={{
+              height: `calc(100svh * ${SCROLL_PER_COUNTRY_MOBILE} * ${countries.length})`,
+            }}
+          />
+        ) : null}
       </div>
 
       {/* Estadísticas — fuera del pin para no alargar el scroll de países */}

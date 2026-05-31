@@ -8,11 +8,11 @@ import {
 import {
   motion,
   useMotionValue,
-  useReducedMotion,
   useScroll,
   useTransform,
   type MotionValue,
 } from 'motion/react'
+import { useParallaxMotionEnabled } from '@/hooks/use-parallax-motion-enabled'
 import { cn } from '@/lib/utils'
 
 /** Progreso de scroll de la sección (0 al entrar, 1 al salir del viewport) */
@@ -53,12 +53,11 @@ type ParallaxLayerProps = {
   children?: ReactNode
 }
 
-/** Fondo global con parallax ligado al scroll de la página */
+/** Fondo global con parallax ligado al scroll de la página (montar solo en desktop vía App) */
 export function SiteParallaxBackdrop() {
   const { scrollYProgress } = useScroll()
-  const reduced = useReducedMotion()
-  const leftY = useTransform(scrollYProgress, [0, 1], reduced ? [0, 0] : [50, -120])
-  const rightY = useTransform(scrollYProgress, [0, 1], reduced ? [0, 0] : [-40, 100])
+  const leftY = useTransform(scrollYProgress, [0, 1], [50, -120])
+  const rightY = useTransform(scrollYProgress, [0, 1], [-40, 100])
 
   return (
     <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden>
@@ -89,11 +88,11 @@ export function ParallaxLayer({
   children,
 }: ParallaxLayerProps) {
   const progress = useSectionProgress()
-  const reduced = useReducedMotion()
+  const motionEnabled = useParallaxMotionEnabled()
   const y = useTransform(
     progress,
     [0, 1],
-    reduced ? [0, 0] : [distance * speed, -distance * speed],
+    motionEnabled ? [distance * speed, -distance * speed] : [0, 0],
   )
 
   return (
@@ -122,11 +121,11 @@ export function ParallaxContent({
   distance = 56,
 }: ParallaxContentProps) {
   const progress = useSectionProgress()
-  const reduced = useReducedMotion()
+  const motionEnabled = useParallaxMotionEnabled()
   const y = useTransform(
     progress,
     [0, 1],
-    reduced ? [0, 0] : [distance * speed, -distance * speed],
+    motionEnabled ? [distance * speed, -distance * speed] : [0, 0],
   )
 
   return (
@@ -153,16 +152,16 @@ export function ParallaxReveal({
   distance = 88,
 }: ParallaxRevealProps) {
   const progress = useSectionProgress()
-  const reduced = useReducedMotion()
+  const motionEnabled = useParallaxMotionEnabled()
   const y = useTransform(
     progress,
     [0, 0.42, 1],
-    reduced ? [0, 0, 0] : [distance, 0, -distance * 0.4],
+    motionEnabled ? [distance, 0, -distance * 0.4] : [0, 0, 0],
   )
   const opacity = useTransform(
     progress,
     [0, 0.18, 0.42, 1],
-    reduced ? [1, 1, 1, 1] : [0, 0.55, 1, 1],
+    motionEnabled ? [0, 0.55, 1, 1] : [1, 1, 1, 1],
   )
 
   return (
@@ -182,12 +181,12 @@ type ParallaxItemProps = {
 /** Elemento hijo (tarjeta, bloque) con parallax individual */
 export function ParallaxItem({ className, children, depth = 1 }: ParallaxItemProps) {
   const progress = useSectionProgress()
-  const reduced = useReducedMotion()
+  const motionEnabled = useParallaxMotionEnabled()
   const shift = 28 * depth
   const y = useTransform(
     progress,
     [0, 0.5, 1],
-    reduced ? [0, 0, 0] : [shift * 0.35, 0, -shift * 0.35],
+    motionEnabled ? [shift * 0.35, 0, -shift * 0.35] : [0, 0, 0],
   )
 
   return (

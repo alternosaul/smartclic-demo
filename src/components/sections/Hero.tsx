@@ -265,6 +265,9 @@ const floatingCardsMobileBottom: HeroSticker[] = [
 /** Retraso del flotado idle por sticker */
 const mobileFloatDelays = [0, 0.6, 1.2, 1.8]
 
+/** Sombra ligera en móvil — evita artefactos al recortar con overflow */
+const mobileStickerShadow = 'drop-shadow-[0_3px_8px_rgba(0,0,0,0.1)]'
+
 /** Estilo sticker: solo imagen + sombra suave (respeta alpha del PNG) */
 const stickerClass =
   'pointer-events-none max-h-full max-w-full select-none object-contain'
@@ -303,7 +306,7 @@ function MobileIdleSticker({
             src={card.src}
             alt={card.title}
             draggable={false}
-            className={`${card.size} ${card.rotate} ${stickerClass} ${card.shadow}`}
+            className={`${card.size} ${card.rotate} ${stickerClass} ${mobileStickerShadow}`}
           />
         </motion.div>
       </motion.div>
@@ -324,8 +327,8 @@ function HeroMobileStickerRow({
   return (
     <div
       className={cn(
-        'pointer-events-none grid grid-cols-4 gap-0 px-0 md:hidden',
-        align === 'end' ? 'items-end' : 'items-start',
+        'pointer-events-none grid grid-cols-4 gap-1 overflow-x-clip px-2 py-2 md:hidden',
+        align === 'end' ? 'mb-6 items-end' : 'mt-7 items-start',
       )}
       aria-hidden
     >
@@ -418,16 +421,17 @@ export function Hero() {
         'md:min-h-[calc(100svh-env(safe-area-inset-top,0px))]',
       )}
     >
-      <motion.div style={{ y: heroBgY }} className="hero-gradient absolute inset-0" aria-hidden />
-      <motion.div style={{ y: heroGridY }} className="bg-grid absolute inset-0" aria-hidden />
+      <motion.div style={{ y: heroBgY }} className="hero-gradient absolute inset-0 max-md:opacity-90" aria-hidden />
+      <motion.div style={{ y: heroGridY }} className="bg-grid absolute inset-0 max-md:opacity-60" aria-hidden />
+      {/* Blobs decorativos solo desktop — en móvil generan manchas/sombras raras en los bordes */}
       <motion.div
         style={{ y: heroBlobLeftY }}
-        className="pointer-events-none absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-primary/10 blur-[120px]"
+        className="pointer-events-none absolute -left-32 top-1/4 hidden h-96 w-96 rounded-full bg-primary/10 blur-[120px] md:block"
         aria-hidden
       />
       <motion.div
         style={{ y: heroBlobRightY }}
-        className="pointer-events-none absolute -right-32 bottom-1/4 h-96 w-96 rounded-full bg-accent/10 blur-[120px]"
+        className="pointer-events-none absolute -right-32 bottom-1/4 hidden h-96 w-96 rounded-full bg-accent/10 blur-[120px] md:block"
         aria-hidden
       />
 
@@ -452,8 +456,8 @@ export function Hero() {
       >
         <div
           className={cn(
-            'relative flex w-full flex-col justify-center gap-2 px-1',
-            'md:block md:min-h-[calc(100svh-4rem-env(safe-area-inset-top,0px))] md:gap-0 md:py-16',
+            'relative flex w-full flex-col justify-center px-1',
+            'max-md:gap-0 md:block md:min-h-[calc(100svh-4rem-env(safe-area-inset-top,0px))] md:gap-0 md:py-16',
           )}
         >
           <HeroMobileStickerRow cards={floatingCardsMobileTop} align="end" />
@@ -464,7 +468,7 @@ export function Hero() {
                 ? { y: heroContentY, opacity: heroContentOpacity, scale: heroContentScale }
                 : undefined
             }
-            className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center py-2 text-center md:py-0"
+            className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center px-1 py-1 text-center max-md:py-3 md:py-0"
           >
             <motion.h1
               animate={{ opacity: 1, y: 0 }}
@@ -472,10 +476,10 @@ export function Hero() {
               transition={{ duration: 0.2, ease: 'easeOut', delay: 0.3 }}
               className="sonsie-one-regular w-full text-foreground"
             >
-              <span className="block text-[clamp(1.75rem,5vw,3.25rem)] leading-[1.1] tracking-normal">
+              <span className="block text-[clamp(2.125rem,7.5vw,3.25rem)] leading-[1.08] tracking-normal max-md:text-[2.35rem]">
                 {t.hero.titlePrefix}
               </span>
-              <span className="mt-2 flex min-h-[1.2em] w-full justify-center overflow-hidden text-[clamp(1.5rem,4.5vw,3.25rem)] leading-[1.1] tracking-normal text-primary">
+              <span className="mt-2 flex min-h-[1.2em] w-full justify-center overflow-hidden text-[clamp(1.875rem,6.5vw,3.25rem)] leading-[1.08] tracking-normal text-primary max-md:mt-2.5 max-md:text-[2rem]">
                 <TextRotate
                   key={t.hero.rotate.join('-')}
                   texts={[...t.hero.rotate]}
@@ -492,7 +496,7 @@ export function Hero() {
             </motion.h1>
 
             <motion.p
-              className="mx-auto mt-4 w-full max-w-lg text-balance text-center text-[clamp(0.75rem,2.2vw,1rem)] leading-relaxed text-muted-foreground sm:mt-5"
+              className="mx-auto mt-5 w-full max-w-lg text-balance text-center text-[clamp(0.9375rem,2.8vw,1rem)] leading-relaxed text-muted-foreground max-md:text-base sm:mt-5"
               animate={{ opacity: 1, y: 0 }}
               initial={{ opacity: 0, y: 20 }}
               transition={{ duration: 0.2, ease: 'easeOut', delay: 0.5 }}
@@ -510,7 +514,7 @@ export function Hero() {
               <Button
                 asChild
                 size="default"
-                className="h-10 rounded-full px-5 text-sm shadow-xl sm:h-11 sm:px-6 sm:text-base"
+                className="h-10 rounded-full px-5 text-sm shadow-md max-md:text-base sm:h-11 sm:px-6 sm:text-base sm:shadow-xl"
               >
                 <a href="#contacto">
                   {t.hero.ctaPrimary}
