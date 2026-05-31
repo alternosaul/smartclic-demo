@@ -17,6 +17,31 @@
     <title>Smartclic | Agencia Digital · Web, Branding y Marketing</title>
   </head>
   <body>
+    <script>
+      (function () {
+        try {
+          var key = 'smartclic-theme'
+          var id = localStorage.getItem(key) || 'cyan'
+          var themes = {
+            cyan: ['oklch(0.55 0.18 195)', 'oklch(0.55 0.2 320)'],
+            ocean: ['oklch(0.5 0.14 245)', 'oklch(0.58 0.12 210)'],
+            violet: ['oklch(0.52 0.2 295)', 'oklch(0.62 0.16 330)'],
+            rose: ['oklch(0.58 0.18 15)', 'oklch(0.65 0.14 350)'],
+            emerald: ['oklch(0.52 0.15 155)', 'oklch(0.58 0.12 175)'],
+            amber: ['oklch(0.68 0.14 75)', 'oklch(0.62 0.16 45)'],
+          }
+          var palette = themes[id] || themes.cyan
+          var root = document.documentElement
+          root.dataset.theme = id
+          root.style.setProperty('--sc-primary', palette[0])
+          root.style.setProperty('--sc-accent', palette[1])
+          root.style.setProperty('--sc-ring', palette[0])
+          root.style.setProperty('--color-primary', palette[0])
+          root.style.setProperty('--color-accent', palette[1])
+          root.style.setProperty('--color-ring', palette[0])
+        } catch (e) {}
+      })()
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

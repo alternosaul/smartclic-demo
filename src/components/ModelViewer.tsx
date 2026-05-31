@@ -322,6 +322,8 @@ const ModelInner = ({
         mode = 'decide'
         sx = lx = e.clientX
         sy = ly = e.clientY
+        // Evita que el navegador haga scroll en lugar de rotar
+        if (enableManualRotation) e.preventDefault()
       } else if (pts.size === 2 && enableManualZoom) {
         mode = 'pinch'
         const [p1, p2] = [...pts.values()]
@@ -341,10 +343,16 @@ const ModelInner = ({
       if (mode === 'decide') {
         const dx = e.clientX - sx
         const dy = e.clientY - sy
-        if (Math.abs(dx) > DECIDE || Math.abs(dy) > DECIDE) {
-          if (enableManualRotation && Math.abs(dx) > Math.abs(dy)) {
+        // Cualquier arrastre sobre el canvas rota el modelo (no solo horizontal)
+        if (Math.hypot(dx, dy) > DECIDE) {
+          if (enableManualRotation) {
             mode = 'rotate'
-            el.setPointerCapture(e.pointerId)
+            try {
+              el.setPointerCapture(e.pointerId)
+            } catch {
+              /* setPointerCapture puede fallar en algunos navegadores */
+            }
+            e.preventDefault()
           } else {
             mode = 'idle'
             pts.clear()
@@ -378,7 +386,7 @@ const ModelInner = ({
       if (mode === 'pinch' && pts.size < 2) mode = 'idle'
     }
 
-    el.addEventListener('pointerdown', down, { passive: true })
+    el.addEventListener('pointerdown', down, { passive: false })
     window.addEventListener('pointermove', move, { passive: false })
     window.addEventListener('pointerup', up, { passive: true })
     window.addEventListener('pointercancel', up, { passive: true })
@@ -564,21 +572,53 @@ const ModelViewer = ({
 
   const zoomEnabled = enableManualZoom && !isolatePageScroll
 
-  // Permite scroll de página sobre el visor 3D (rueda y trackpad)
+  // Scroll de página con rueda; en móvil fuerza touch-action none en canvas para rotar
   useEffect(() => {
-    if (!isolatePageScroll) return
     const wrapper = wrapperRef.current
-    const canvas = wrapper?.querySelector('canvas')
-    if (!canvas) return
+    if (!wrapper) return
 
-    const onWheel = (e: WheelEvent) => {
-      if (e.ctrlKey || e.metaKey) return
-      e.stopPropagation()
+    const touchRotation = isTouch && enableManualRotation
+    let canvas: HTMLCanvasElement | null = null
+    let onWheel: ((e: WheelEvent) => void) | null = null
+
+    const bindCanvas = () => {
+      const next = wrapper.querySelector('canvas')
+      if (!next || next === canvas) return !!canvas
+
+      if (canvas && onWheel) {
+        canvas.removeEventListener('wheel', onWheel, { capture: true })
+      }
+
+      canvas = next
+      canvas.style.touchAction = touchRotation ? 'none' : isolatePageScroll ? 'pan-y' : 'auto'
+
+      onWheel = (e: WheelEvent) => {
+        if (!isolatePageScroll) return
+        if (e.ctrlKey || e.metaKey) return
+        e.stopPropagation()
+      }
+      if (isolatePageScroll) {
+        canvas.addEventListener('wheel', onWheel, { passive: true, capture: true })
+      }
+      return true
     }
 
-    canvas.addEventListener('wheel', onWheel, { passive: true, capture: true })
-    return () => canvas.removeEventListener('wheel', onWheel, { capture: true })
-  }, [])
+    if (bindCanvas()) {
+      return () => {
+        if (canvas && onWheel) canvas.removeEventListener('wheel', onWheel, { capture: true })
+      }
+    }
+
+    const observer = new MutationObserver(() => {
+      if (bindCanvas()) observer.disconnect()
+    })
+    observer.observe(wrapper, { childList: true, subtree: true })
+
+    return () => {
+      observer.disconnect()
+      if (canvas && onWheel) canvas.removeEventListener('wheel', onWheel, { capture: true })
+    }
+  }, [isolatePageScroll, enableManualRotation])
 
   const capture = () => {
     const g = rendererRef.current
@@ -616,7 +656,7 @@ const ModelViewer = ({
       style={{
         width,
         height,
-        touchAction: 'pan-y',
+        touchAction: isTouch && enableManualRotation ? 'none' : 'pan-y',
         position: 'relative',
       }}
     >
@@ -645,7 +685,12 @@ const ModelViewer = ({
           gl.outputColorSpace = THREE.SRGBColorSpace
         }}
         camera={{ fov: 38, position: [0, 0, camZ], near: 0.01, far: 100 }}
-        style={{ width: '100%', height: '100%', touchAction: 'pan-y', background: '#000000' }}
+        style={{
+          width: '100%',
+          height: '100%',
+          touchAction: isTouch && enableManualRotation ? 'none' : 'pan-y',
+          background: '#000000',
+        }}
       >
         {environmentPreset !== 'none' && (
           <Environment

@@ -1,0 +1,195 @@
+/* Contenedor con scroll interno (modo contenedor) */
+.scroll-stack-scroller {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: visible;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: scroll-position;
+}
+
+/* Modo window — el scroll lo maneja la página / Lenis */
+.scroll-stack-scroller--window {
+  height: auto;
+  overflow: visible;
+}
+
+.scroll-stack-inner {
+  padding: 20vh 0 50rem;
+  min-height: 100vh;
+}
+
+.scroll-stack-inner--window {
+  padding: 0 0 36rem;
+  min-height: auto;
+}
+
+/* Blog pin — sin padding extra; el pin-spacer de GSAP define el scroll */
+.scroll-stack-inner--window.scroll-stack-inner--anchored {
+  padding-bottom: 0;
+  min-height: 0;
+}
+
+/* Blog móvil — el padding inferior lo define la prop bottomPadding */
+.scroll-stack-inner--compact {
+  min-height: auto;
+}
+
+/* Blog — el track de scroll lo define .scroll-stack-end en modo anclado */
+.scroll-stack-inner--window.scroll-stack-inner--blog {
+  padding: 0;
+  min-height: auto;
+}
+
+.scroll-stack-inner--window.scroll-stack-inner--blog.scroll-stack-inner--anchored {
+  padding-bottom: 0;
+}
+
+.scroll-stack-inner--blog {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+}
+
+.scroll-stack-inner--blog .scroll-stack-card--blog {
+  width: 100%;
+}
+
+/* Blog pin — tarjetas superpuestas en el mismo slot */
+.scroll-stack-inner--anchored {
+  position: relative;
+  width: 100%;
+}
+
+.scroll-stack-inner--anchored .scroll-stack-card--blog:first-child {
+  position: relative;
+}
+
+.scroll-stack-inner--anchored .scroll-stack-card--blog:not(:first-child) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+/* Altura mínima del slot = primera tarjeta; el spacer inferior habilita el apilado */
+.scroll-stack-inner--blog.scroll-stack-inner--anchored {
+  min-height: 10rem;
+}
+
+.scroll-stack-inner--blog.scroll-stack-inner--anchored .scroll-stack-end {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+/* Contenedor pinneado del blog: cabecera + stack */
+.blog-scroll-pin {
+  width: 100%;
+}
+
+/* Blog: cabecera estática (reduced motion) */
+.blog-scroll-header {
+  position: relative;
+  margin-bottom: 0;
+  background: white;
+}
+
+/* Blog: cabecera sticky + stack sin pin-spacer */
+.blog-sticky-stage {
+  position: relative;
+}
+
+.blog-scroll-stack {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Blog desktop — fila horizontal (legacy, no usado en blog) */
+.scroll-stack-inner--horizontal {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0;
+  width: max-content;
+  max-width: none;
+  margin-inline: auto;
+  padding: 0 0 6rem;
+  min-height: auto;
+}
+
+.scroll-stack-inner--horizontal .scroll-stack-card--blog {
+  flex: 0 0 auto;
+  width: min(22rem, calc(100vw - 3rem));
+  max-width: 22rem;
+  position: sticky;
+  top: 22vh;
+}
+
+.scroll-stack-end--horizontal {
+  flex: 0 0 4rem;
+  width: 4rem;
+  height: 1px;
+}
+
+/* Contenedor del blog desktop — sin scroll horizontal propio */
+.scroll-stack-scroller--blog-horizontal {
+  overflow: visible;
+}
+
+.scroll-stack-card {
+  transform-origin: top center;
+  will-change: transform, filter;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  margin: 0;
+  border-radius: 1rem;
+  box-sizing: border-box;
+  position: relative;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+/* Tarjetas del blog — altura automática, sombra al apilar */
+.scroll-stack-card--blog {
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  margin-top: 0;
+  background: transparent;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+  border-radius: 1rem;
+}
+
+.scroll-stack-end {
+  width: 100%;
+  height: 1px;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}

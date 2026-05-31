@@ -1,8 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { motion } from 'motion/react'
 import { Loader2, Mail, MapPin, Phone, Send } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import {
+  ParallaxContent,
+  ParallaxItem,
+  ParallaxLayer,
+  ParallaxSection,
+} from '@/components/effects/ParallaxSection'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -68,22 +73,25 @@ export function Contact() {
   }
 
   return (
-    <section id="contacto" className="relative border-t border-border bg-white py-20 sm:py-28">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-0 h-72 w-96 -translate-x-1/2 rounded-full bg-primary/5 blur-3xl" />
-      </div>
+    <ParallaxSection id="contacto" className="relative overflow-hidden border-t border-border bg-white py-20 sm:py-28">
+      <ParallaxLayer
+        speed={0.35}
+        className="left-1/2 top-0 h-72 w-96 -translate-x-1/2 rounded-full bg-primary/5 blur-3xl"
+      />
+      <ParallaxLayer
+        speed={0.55}
+        className="-right-24 bottom-0 h-64 w-64 rounded-full bg-accent/8 blur-[100px]"
+      />
 
-      <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <ParallaxContent className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:items-start lg:gap-16">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <Badge variant="outline" className="mb-4 border-primary/30 text-primary">
-              {t.contact.badge}
-            </Badge>
+          <ParallaxItem depth={0.9}>
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
             <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               {t.contact.title}
             </h2>
@@ -111,14 +119,16 @@ export function Contact() {
                 {t.contact.location}
               </li>
             </ul>
-          </motion.div>
+            </motion.div>
+          </ParallaxItem>
 
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
+          <ParallaxItem depth={1.25}>
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
             <form
               onSubmit={handleSubmit}
               className="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8"
@@ -224,8 +234,9 @@ export function Contact() {
               </p>
             </form>
           </motion.div>
+          </ParallaxItem>
         </div>
-      </div>
-    </section>
+      </ParallaxContent>
+    </ParallaxSection>
   )
 }

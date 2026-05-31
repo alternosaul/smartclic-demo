@@ -1,0 +1,59 @@
+.card-swap-container {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  transform: translate(5%, 20%);
+  transform-origin: bottom right;
+  perspective: 900px;
+  overflow: visible;
+}
+
+/* Variante centrada — sin transform extra; el padre flex centra el bloque */
+.card-swap-container--center {
+  position: relative;
+  left: auto;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  margin-inline: auto;
+  transform: none;
+  transform-origin: center center;
+}
+
+/* Variante flujo — debajo del título, sin subir hacia el copy */
+.card-swap-container--flow {
+  position: relative;
+  left: auto;
+  top: auto;
+  right: auto;
+  bottom: auto;
+  transform: none;
+  margin-inline: auto;
+}
+
+.card-swap-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 1rem;
+  border: 1px solid oklch(0.9 0.01 260);
+  background: white;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+  transform-style: preserve-3d;
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Ancla las tarjetas desde arriba cuando el stack crece hacia abajo */
+.card-swap-container--flow .card-swap-card {
+  top: 0;
+  left: 50%;
+}
+
+@media (max-width: 640px) {
+  .card-swap-container:not(.card-swap-container--center):not(.card-swap-container--flow) {
+    transform: scale(0.75) translate(25%, 25%);
+  }
+}

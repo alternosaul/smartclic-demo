@@ -4,7 +4,7 @@ export const translations = {
   es: {
     nav: {
       solutions: 'Soluciones',
-      process: 'Proceso',
+      presence: 'Presencia',
       works: 'Trabajos',
       blog: 'Blog',
       contact: 'Contacto',
@@ -12,6 +12,15 @@ export const translations = {
       openMenu: 'Abrir menú',
       closeMenu: 'Cerrar menú',
       langSwitch: 'Cambiar idioma a inglés',
+      themePalette: 'Paleta de color del sitio',
+      themes: {
+        cyan: 'Tema cian',
+        ocean: 'Tema océano',
+        violet: 'Tema violeta',
+        rose: 'Tema rosa',
+        emerald: 'Tema esmeralda',
+        amber: 'Tema ámbar',
+      },
     },
     hero: {
       titlePrefix: 'Hacemos tu',
@@ -32,6 +41,14 @@ export const translations = {
     },
     brands: {
       title: 'Marcas que confían en nosotros',
+    },
+    sectionTransitions: {
+      solutions: 'Soluciones',
+      tech: 'Innovación',
+      presence: 'Presencia global',
+      portfolio: 'Portafolio',
+      blog: 'Blog',
+      contact: 'Hablemos',
     },
     solutions: {
       badge: 'Qué hacemos',
@@ -62,6 +79,52 @@ export const translations = {
             'Planes claros, métricas y acciones para escalar tu negocio en el entorno digital.',
         },
       ],
+      bento: {
+        web: {
+          title: 'Sitios web ecommerce',
+          description:
+            'Páginas rápidas, modernas y pensadas para convertir visitantes en clientes.',
+        },
+        branding: {
+          title: 'Branding e identidad',
+          description:
+            'Identidad visual, voz de marca y piezas que comunican quién eres y por qué importas.',
+        },
+        marketing: {
+          title: 'Marketing digital',
+          description:
+            'Campañas, redes, contenido y publicidad para llegar a la audiencia correcta.',
+          reachLabel: 'Alcance',
+          growthBadge: '+24%',
+        },
+        growth: {
+          title: 'Estrategias de crecimiento',
+          description:
+            'Planes claros, métricas y acciones para escalar tu negocio en el entorno digital.',
+          metricsLabel: 'Proyección trimestral',
+          trendBadge: '+38%',
+        },
+        team: {
+          title: 'Un solo equipo para tu marca',
+          description:
+            'Diseño, tecnología y marketing coordinados — sin media docena de proveedores.',
+          flowLabel: 'Todo en un mismo flujo',
+          disciplines: [
+            {
+              label: 'Diseño y UX',
+              detail: 'Marca, interfaces y experiencia de usuario',
+            },
+            {
+              label: 'Desarrollo web',
+              detail: 'Sitios, tiendas online y producto digital',
+            },
+            {
+              label: 'Marketing digital',
+              detail: 'Contenido, campañas y estrategia de crecimiento',
+            },
+          ],
+        },
+      },
     },
     tech: {
       badge: '3D interactivo',
@@ -71,27 +134,60 @@ export const translations = {
       hint: 'Desplaza la página con normalidad. Arrastra el modelo para rotarlo.',
       capture: 'Capturar',
     },
-    process: {
-      badge: 'Proceso',
-      title: 'De la idea a resultados medibles',
+    presence: {
+      badge: 'Presencia regional',
+      scrollTitle: 'Presencia global',
+      scrollHint: 'Desplaza para recorrer cada mercado',
+      title: 'Presencia en todo el continente',
       description:
-        'Un flujo claro, transparente y sin sorpresas. Tú enfócate en tu negocio; nosotros en la estrategia y la ejecución digital.',
-      steps: [
+        'Desde México coordinamos proyectos digitales para marcas en Norteamérica y Latinoamérica. Cerca de ti, con el mismo estándar de calidad.',
+      mapHint: 'Toca un país para ver su mercado',
+      partnersLabel: 'Empresas que confían en nosotros',
+      statsTitle: 'Números que nos respaldan',
+      stats: [
         {
-          title: 'Descubrimiento',
-          text: 'Entendemos tu marca, audiencia y objetivos de negocio.',
+          value: 4,
+          suffix: '',
+          prefix: '',
+          label: 'Países con presencia activa',
         },
         {
-          title: 'Diseño & prototipo',
-          text: 'Wireframes y UI de alto impacto antes de lanzar.',
+          value: 30,
+          suffix: '+',
+          prefix: '',
+          label: 'Clientes satisfechos',
         },
         {
-          title: 'Desarrollo',
-          text: 'Sitios web, piezas de marca y campañas listas para lanzar y medir.',
+          value: 10,
+          suffix: '+',
+          prefix: '',
+          label: 'Años de experiencia digital',
+        },
+      ],
+      countries: [
+        {
+          id: 'mx',
+          name: 'México',
+          city: 'CDMX',
+          role: 'Sede principal',
         },
         {
-          title: 'Lanzamiento',
-          text: 'Deploy, SEO, analytics y soporte post-lanzamiento.',
+          id: 'us',
+          name: 'Estados Unidos',
+          city: 'Remoto · USA',
+          role: 'Clientes y socios',
+        },
+        {
+          id: 'pe',
+          name: 'Perú',
+          city: 'Lima',
+          role: 'Proyectos regionales',
+        },
+        {
+          id: 'ar',
+          name: 'Argentina',
+          city: 'Buenos Aires',
+          role: 'Expansión LATAM',
         },
       ],
     },
@@ -99,11 +195,15 @@ export const translations = {
       badge: 'Portafolio',
       title: 'Proyectos que hablan por nosotros',
       cta: 'Ver todos los casos',
+      prevProject: 'Proyecto anterior',
+      nextProject: 'Siguiente proyecto',
       projects: [
         { title: 'E-commerce Premium', category: 'Tienda en línea' },
         { title: 'SaaS Dashboard', category: 'Aplicación web' },
         { title: 'Landing Corporativa', category: 'Marca institucional' },
         { title: 'Portal Inmobiliario', category: 'Catálogo & filtros' },
+        { title: 'App de Reservas', category: 'Experiencia móvil' },
+        { title: 'Rediseño de Marca', category: 'Identidad visual' },
       ],
     },
     blog: {
@@ -112,6 +212,7 @@ export const translations = {
       description:
         'Artículos sobre marketing, presencia digital, IA y estrategias que puedes aplicar hoy.',
       cta: 'Ver todo el blog',
+      scrollHint: 'Desplaza para ver cada artículo',
       readMore: 'Leer artículo',
       posts: [
         {
@@ -132,6 +233,18 @@ export const translations = {
           excerpt:
             'En la era digital, no estar en la web tiene un costo real. Conoce los riesgos y cómo evitarlos.',
           date: '19 diciembre 2024',
+        },
+        {
+          title: 'Tendencias de branding digital para 2025',
+          excerpt:
+            'Identidad visual, voz de marca y consistencia omnicanal: lo que marcas en México deben priorizar este año.',
+          date: '10 enero 2025',
+        },
+        {
+          title: 'Cómo medir el ROI de tu inversión en marketing digital',
+          excerpt:
+            'Métricas, embudos y herramientas para saber si tu presupuesto en ads, SEO y contenido está rindiendo.',
+          date: '5 noviembre 2024',
         },
       ],
     },
@@ -181,7 +294,7 @@ export const translations = {
   en: {
     nav: {
       solutions: 'Solutions',
-      process: 'Process',
+      presence: 'Presence',
       works: 'Work',
       blog: 'Blog',
       contact: 'Contact',
@@ -189,6 +302,15 @@ export const translations = {
       openMenu: 'Open menu',
       closeMenu: 'Close menu',
       langSwitch: 'Switch language to Spanish',
+      themePalette: 'Site color palette',
+      themes: {
+        cyan: 'Cyan theme',
+        ocean: 'Ocean theme',
+        violet: 'Violet theme',
+        rose: 'Rose theme',
+        emerald: 'Emerald theme',
+        amber: 'Amber theme',
+      },
     },
     hero: {
       titlePrefix: 'We build your',
@@ -209,6 +331,14 @@ export const translations = {
     },
     brands: {
       title: 'Brands that trust us',
+    },
+    sectionTransitions: {
+      solutions: 'Solutions',
+      tech: 'Innovation',
+      presence: 'Global presence',
+      portfolio: 'Portfolio',
+      blog: 'Blog',
+      contact: "Let's talk",
     },
     solutions: {
       badge: 'What we do',
@@ -239,6 +369,52 @@ export const translations = {
             'Clear plans, metrics and actions to scale your business digitally.',
         },
       ],
+      bento: {
+        web: {
+          title: 'Websites & ecommerce',
+          description:
+            'Fast, modern pages built to turn visitors into customers.',
+        },
+        branding: {
+          title: 'Branding & identity',
+          description:
+            'Visual identity, brand voice and assets that show who you are and why you matter.',
+        },
+        marketing: {
+          title: 'Digital marketing',
+          description:
+            'Campaigns, social, content and ads to reach the right audience.',
+          reachLabel: 'Reach',
+          growthBadge: '+24%',
+        },
+        growth: {
+          title: 'Growth strategies',
+          description:
+            'Clear plans, metrics and actions to scale your business digitally.',
+          metricsLabel: 'Quarterly forecast',
+          trendBadge: '+38%',
+        },
+        team: {
+          title: 'One team for your brand',
+          description:
+            'Design, technology and marketing in sync — no juggling a dozen vendors.',
+          flowLabel: 'One integrated workflow',
+          disciplines: [
+            {
+              label: 'Design & UX',
+              detail: 'Brand, interfaces and user experience',
+            },
+            {
+              label: 'Web development',
+              detail: 'Sites, online stores and digital product',
+            },
+            {
+              label: 'Digital marketing',
+              detail: 'Content, campaigns and growth strategy',
+            },
+          ],
+        },
+      },
     },
     tech: {
       badge: 'Interactive 3D',
@@ -248,27 +424,60 @@ export const translations = {
       hint: 'Scroll the page as usual. Drag the model to rotate it.',
       capture: 'Capture',
     },
-    process: {
-      badge: 'Process',
-      title: 'From idea to measurable results',
+    presence: {
+      badge: 'Regional presence',
+      scrollTitle: 'Global presence',
+      scrollHint: 'Scroll to explore each market',
+      title: 'Presence across the Americas',
       description:
-        'A clear, transparent workflow. You focus on your business; we handle digital strategy and execution.',
-      steps: [
+        'From Mexico we run digital projects for brands in North America and Latin America. Close to you, with the same quality standard.',
+      mapHint: 'Tap a country to explore its market',
+      partnersLabel: 'Companies that trust us',
+      statsTitle: 'Numbers that back us up',
+      stats: [
         {
-          title: 'Discovery',
-          text: 'We learn your brand, audience and business goals.',
+          value: 4,
+          suffix: '',
+          prefix: '',
+          label: 'Countries with active presence',
         },
         {
-          title: 'Design & prototype',
-          text: 'High-impact wireframes and UI before launch.',
+          value: 30,
+          suffix: '+',
+          prefix: '',
+          label: 'Satisfied clients',
         },
         {
-          title: 'Development',
-          text: 'Websites, brand assets and campaigns ready to launch and measure.',
+          value: 10,
+          suffix: '+',
+          prefix: '',
+          label: 'Years of digital experience',
+        },
+      ],
+      countries: [
+        {
+          id: 'mx',
+          name: 'Mexico',
+          city: 'CDMX',
+          role: 'Headquarters',
         },
         {
-          title: 'Launch',
-          text: 'Deploy, SEO, analytics and post-launch support.',
+          id: 'us',
+          name: 'United States',
+          city: 'Remote · USA',
+          role: 'Clients & partners',
+        },
+        {
+          id: 'pe',
+          name: 'Peru',
+          city: 'Lima',
+          role: 'Regional projects',
+        },
+        {
+          id: 'ar',
+          name: 'Argentina',
+          city: 'Buenos Aires',
+          role: 'LATAM expansion',
         },
       ],
     },
@@ -276,11 +485,15 @@ export const translations = {
       badge: 'Portfolio',
       title: 'Work that speaks for us',
       cta: 'View all case studies',
+      prevProject: 'Previous project',
+      nextProject: 'Next project',
       projects: [
         { title: 'Premium E-commerce', category: 'Online store' },
         { title: 'SaaS Dashboard', category: 'Web application' },
         { title: 'Corporate Landing', category: 'Institutional brand' },
         { title: 'Real Estate Portal', category: 'Catalog & filters' },
+        { title: 'Booking App', category: 'Mobile experience' },
+        { title: 'Brand Redesign', category: 'Visual identity' },
       ],
     },
     blog: {
@@ -289,6 +502,7 @@ export const translations = {
       description:
         'Articles on marketing, digital presence, AI and strategies you can apply today.',
       cta: 'View full blog',
+      scrollHint: 'Scroll to view each article',
       readMore: 'Read article',
       posts: [
         {
@@ -308,6 +522,18 @@ export const translations = {
           excerpt:
             'In the digital age, staying offline has a real cost. Learn the risks and how to avoid them.',
           date: 'December 19, 2024',
+        },
+        {
+          title: 'Digital branding trends for 2025',
+          excerpt:
+            'Visual identity, brand voice and omnichannel consistency: what brands should prioritize this year.',
+          date: 'January 10, 2025',
+        },
+        {
+          title: 'How to measure ROI on your digital marketing spend',
+          excerpt:
+            'Metrics, funnels and tools to know if your budget for ads, SEO and content is paying off.',
+          date: 'November 5, 2024',
         },
       ],
     },

@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { LanguageToggle } from '@/components/layout/LanguageToggle'
+import { ThemePalette } from '@/components/layout/ThemePalette'
 import { Logo } from '@/components/layout/Logo'
 import { useLanguage } from '@/i18n/LanguageProvider'
 import { cn } from '@/lib/utils'
@@ -20,7 +21,7 @@ export function Navbar() {
 
   const links = [
     { href: '#soluciones', label: t.nav.solutions },
-    { href: '#proceso', label: t.nav.process },
+    { href: '#presencia', label: t.nav.presence },
     { href: '#trabajos', label: t.nav.works },
     { href: '#blog', label: t.nav.blog },
     { href: '#contacto', label: t.nav.contact },
@@ -53,7 +54,7 @@ export function Navbar() {
       )}
     >
       <nav
-        className="mx-auto flex h-14 min-w-0 max-w-7xl items-center justify-between gap-2 px-3 sm:h-16 sm:gap-3 sm:px-6 lg:px-8"
+        className="mx-auto flex h-16 min-w-0 max-w-7xl items-center justify-between gap-2 px-3 sm:h-16 sm:gap-3 sm:px-6 lg:px-8"
         aria-label="Principal"
       >
         <a
@@ -61,7 +62,7 @@ export function Navbar() {
           className="flex min-w-0 shrink-0 items-center"
           onClick={closeMenu}
         >
-          <Logo className="h-9 w-auto sm:h-10" />
+          <Logo />
         </a>
 
         {/* Enlaces — solo escritorio grande (lg+) */}
@@ -79,26 +80,44 @@ export function Navbar() {
         </ul>
 
         {/* Escritorio lg+: idioma + CTA */}
-        <div className="hidden shrink-0 items-center gap-3 lg:flex">
+        <div className="hidden shrink-0 items-center gap-2 lg:flex xl:gap-3">
+          <ThemePalette />
           <LanguageToggle />
           <Button asChild size="sm" className="rounded-full px-6">
             <a href="#contacto">{t.nav.cta}</a>
           </Button>
         </div>
 
-        {/* Móvil y tablet (&lt; lg): idioma + hamburguesa */}
+        {/* Móvil y tablet (< lg): idioma + hamburguesa destacado */}
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 lg:hidden">
-          <LanguageToggle className="h-8 px-2.5 text-[11px] sm:h-9 sm:px-3 sm:text-xs" />
+          <ThemePalette />
+          <LanguageToggle className="h-9 px-3 text-xs sm:h-10 sm:px-3.5 sm:text-xs" />
           <motion.button
             type="button"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border bg-white text-foreground shadow-sm sm:h-10 sm:w-10"
+            className={cn(
+              'relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border-2 shadow-md transition-colors sm:h-12 sm:w-12',
+              open
+                ? 'border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/30'
+                : 'border-primary/50 bg-primary/10 text-primary shadow-primary/15 ring-2 ring-primary/25',
+            )}
             onClick={() => setOpen((prev) => !prev)}
             aria-label={open ? t.nav.closeMenu : t.nav.openMenu}
             aria-expanded={open}
-            whileTap={{ scale: 0.88 }}
-            animate={open ? { scale: [1, 1.12, 1] } : { scale: 1 }}
-            transition={{ duration: 0.35, ease: [0.34, 1.4, 0.64, 1] }}
+            whileTap={{ scale: 0.9 }}
+            animate={
+              open
+                ? { scale: [1, 1.08, 1] }
+                : { scale: [1, 1.04, 1], boxShadow: ['0 4px 14px rgba(0,0,0,0.08)', '0 6px 20px rgba(0,0,0,0.12)', '0 4px 14px rgba(0,0,0,0.08)'] }
+            }
+            transition={
+              open
+                ? { duration: 0.35, ease: [0.34, 1.4, 0.64, 1] }
+                : { duration: 2.8, repeat: Infinity, ease: 'easeInOut' }
+            }
           >
+            {!open && (
+              <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-white" aria-hidden />
+            )}
             <AnimatePresence mode="wait" initial={false}>
               <motion.span
                 key={open ? 'close' : 'open'}
@@ -109,9 +128,9 @@ export function Navbar() {
                 transition={popSpring}
               >
                 {open ? (
-                  <X size={20} strokeWidth={2.25} className="sm:h-[22px] sm:w-[22px]" />
+                  <X size={22} strokeWidth={2.5} />
                 ) : (
-                  <Menu size={20} strokeWidth={2.25} className="sm:h-[22px] sm:w-[22px]" />
+                  <Menu size={22} strokeWidth={2.5} />
                 )}
               </motion.span>
             </AnimatePresence>

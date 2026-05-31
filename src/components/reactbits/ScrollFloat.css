@@ -1,0 +1,16 @@
+/* Contenedor ScrollFloat — oculta caracteres mientras entran desde abajo */
+.scroll-float {
+  overflow: hidden;
+  width: 100%;
+}
+
+.scroll-float-text {
+  display: inline-block;
+  max-width: 100%;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.char {
+  display: inline-block;
+}
