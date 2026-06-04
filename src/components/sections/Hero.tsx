@@ -418,6 +418,7 @@ export function Hero() {
         'relative flex w-full flex-col overflow-x-clip bg-white touch-pan-y',
         'pt-[calc(4rem+env(safe-area-inset-top,0px))]',
         'max-md:pb-0',
+        /* Desktop: altura de pantalla completa; copy centrado con posicionamiento absoluto */
         'md:min-h-[calc(100svh-env(safe-area-inset-top,0px))]',
       )}
     >
@@ -446,18 +447,19 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Móvil: bloque centrado en el viewport (debajo del navbar). Desktop: layout anterior */}
+      {/* Móvil: bloque centrado en el viewport. Desktop: centro vertical de la pantalla (50svh) */}
       <div
         className={cn(
           'relative z-10 mx-auto flex w-full max-w-lg shrink-0 flex-col items-center px-4 text-center sm:max-w-xl lg:max-w-2xl',
           'max-md:min-h-[calc(100svh-4rem-env(safe-area-inset-top,0px))] max-md:justify-center max-md:py-4',
-          'md:flex-1 md:justify-center md:pb-8 md:pt-0',
+          /* Centro del área visible bajo el navbar: 4rem + mitad del resto del viewport */
+          'md:pointer-events-none md:absolute md:inset-x-0 md:top-[calc(2rem+50svh)] md:-translate-y-1/2 md:py-0',
         )}
       >
         <div
           className={cn(
             'relative flex w-full flex-col justify-center px-1',
-            'max-md:gap-0 md:block md:min-h-[calc(100svh-4rem-env(safe-area-inset-top,0px))] md:gap-0 md:py-16',
+            'max-md:gap-0 md:min-h-0 md:gap-0',
           )}
         >
           <HeroMobileStickerRow cards={floatingCardsMobileTop} align="end" />
@@ -468,7 +470,7 @@ export function Hero() {
                 ? { y: heroContentY, opacity: heroContentOpacity, scale: heroContentScale }
                 : undefined
             }
-            className="relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center px-1 py-1 text-center max-md:py-3 md:py-0"
+            className="pointer-events-auto relative z-10 mx-auto flex w-full max-w-2xl flex-col items-center px-1 py-1 text-center max-md:py-3 md:py-0"
           >
             <motion.h1
               animate={{ opacity: 1, y: 0 }}
@@ -479,14 +481,17 @@ export function Hero() {
               <span className="block text-[clamp(2.125rem,7.5vw,3.25rem)] leading-[1.08] tracking-normal max-md:text-[2.35rem]">
                 {t.hero.titlePrefix}
               </span>
-              <span className="mt-2 flex min-h-[1.2em] w-full justify-center overflow-hidden text-[clamp(1.875rem,6.5vw,3.25rem)] leading-[1.08] tracking-normal text-primary max-md:mt-2.5 max-md:text-[2rem]">
+              <span className="mt-2 flex min-h-[1.2em] w-full justify-center px-3 text-[clamp(1.875rem,6.5vw,3.25rem)] leading-[1.08] tracking-normal text-primary max-md:mt-2.5 max-md:px-2 max-md:text-[2rem] sm:px-4">
                 <TextRotate
                   key={t.hero.rotate.join('-')}
                   texts={[...t.hero.rotate]}
                   splitBy="words"
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -14 }}
                   mainClassName="sonsie-one-regular w-full max-w-full"
-                  splitLevelClassName="inline-flex shrink-0 whitespace-nowrap"
-                  elementLevelClassName="sonsie-one-regular inline-block whitespace-nowrap"
+                  splitLevelClassName="inline-flex shrink-0 whitespace-nowrap px-[0.06em]"
+                  elementLevelClassName="sonsie-one-regular inline-block"
                   staggerDuration={0.04}
                   staggerFrom="last"
                   rotationInterval={2800}
@@ -540,10 +545,10 @@ export function Hero() {
         </div>
       </div>
 
-      {/* Banners debajo del copy en móvil (z bajo) para no tapar título ni CTAs */}
+      {/* Banners al pie del hero; en desktop no desplazan el copy (posición absoluta arriba) */}
       <motion.div
         style={scrollMotionEnabled ? { y: heroBrandY } : undefined}
-        className="relative z-[1] w-full shrink-0 max-md:mt-0 md:z-20"
+        className="relative z-[1] mt-auto w-full shrink-0 max-md:mt-0 md:absolute md:inset-x-0 md:bottom-0 md:z-20"
       >
         <BrandBanners variant="hero" />
       </motion.div>

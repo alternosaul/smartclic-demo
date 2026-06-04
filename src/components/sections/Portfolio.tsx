@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button'
 import CardSwap, { SwapCard, type CardSwapHandle } from '@/components/reactbits/CardSwap'
 import { PortfolioServicesGrid } from '@/components/sections/PortfolioServicesGrid'
 import {
-  BentoBrandGlow,
   SectionBrandBackground,
+  SectionBrandGlow,
 } from '@/components/ui/background-components'
 import { useLanguage } from '@/i18n/LanguageProvider'
 import { cn } from '@/lib/utils'
@@ -196,8 +196,9 @@ export function Portfolio() {
       id="trabajos"
       className="relative overflow-x-clip overflow-y-visible bg-white pt-8 pb-6 sm:pt-12 sm:pb-8"
     >
-      {/* Cuadrícula suave en toda la sección (mismo estilo que #soluciones) */}
+      {/* Cuadrícula + glow en toda la sección (incluye padding superior e inferior) */}
       <SectionBrandBackground />
+      <SectionBrandGlow />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-start justify-between gap-6 pb-5 sm:flex-row sm:items-end sm:pb-7">
@@ -212,27 +213,23 @@ export function Portfolio() {
           </Button>
         </div>
 
-        {/* Glow centrado detrás del grid de servicios + carrusel de proyectos */}
-        <div className="relative mt-8 overflow-visible sm:mt-10">
-          <BentoBrandGlow />
-          <div className="relative z-10">
-            {reducedMotion ? (
-              <PortfolioGrid projects={projects} />
-            ) : (
-              <div className="overflow-visible">
-                {/*
-                  Desktop: servicios a la izquierda, carrusel desplazado a la derecha.
-                  Móvil: servicios arriba en 2 columnas, carrusel centrado abajo.
-                */}
-                <div className="grid grid-cols-1 items-start gap-12 max-lg:gap-14 lg:grid-cols-[minmax(240px,30%)_minmax(0,1fr)] lg:items-center lg:gap-6 xl:grid-cols-[minmax(260px,28%)_minmax(0,1fr)] xl:gap-10">
-                  <div className="relative w-full max-lg:pb-2">
-                    <PortfolioServicesGrid />
-                  </div>
-                  <PortfolioCardSwap projects={projects} />
+        <div className="mt-8 overflow-visible sm:mt-10">
+          {reducedMotion ? (
+            <PortfolioGrid projects={projects} />
+          ) : (
+            <div className="overflow-visible">
+              {/*
+                Desktop: servicios a la izquierda, carrusel desplazado a la derecha.
+                Móvil: servicios arriba en 2 columnas, carrusel centrado abajo.
+              */}
+              <div className="grid grid-cols-1 items-start gap-12 max-lg:gap-14 lg:grid-cols-[minmax(240px,30%)_minmax(0,1fr)] lg:items-center lg:gap-6 xl:grid-cols-[minmax(260px,28%)_minmax(0,1fr)] xl:gap-10">
+                <div className="relative w-full max-lg:pb-2">
+                  <PortfolioServicesGrid />
                 </div>
+                <PortfolioCardSwap projects={projects} />
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
